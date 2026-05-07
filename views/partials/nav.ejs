@@ -1,0 +1,29 @@
+<nav class="flex items-center justify-between p-6 bg-[#111827] border-b border-gray-800">
+    <div class="flex items-center gap-8">
+        <h1 class="text-2xl font-black text-blue-500 italic">Virginia FivePD</h1>
+        <div class="hidden md:flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-400">
+            <a href="/" class="hover:text-white transition">Home</a>
+            <a href="/updates" class="hover:text-white transition">Updates</a>
+            <a href="/status" class="hover:text-white transition">Status / Server</a>
+            <a href="/store" class="hover:text-blue-400 transition text-yellow-500">Store</a>
+            <a href="/leo" class="hover:text-blue-400 transition text-yellow-500">LEO Dashboard</a>
+        </div>
+    </div>
+
+    <div>
+        <% if (user) { %>
+            <div class="flex items-center gap-4">
+                <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png"
+                    class="w-8 h-8 rounded-full border-2 border-blue-500">
+                <span class="font-bold">
+                    <%= user.username %>
+                </span>
+                <a href="/logout" class="text-xs text-red-500">Logout</a>
+            </div>
+            <% } else { %>
+                <a href="/auth/discord"
+                    class="bg-blue-600 px-6 py-2 rounded-lg font-bold hover:bg-blue-500 transition">Login with
+                    Discord</a>
+                <% } %>
+    </div>
+</nav>

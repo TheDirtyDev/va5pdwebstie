@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Virginia FivePD | Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: 200%;
+            animation: marquee 20s linear infinite;
+        }
+        .glow-bg {
+            background: radial-gradient(circle at 50% -20%, #1e3a8a 0%, #0f172a 45%);
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f1a] text-white font-sans overflow-x-hidden glow-bg min-h-screen">
+    <%- include('partials/nav') %>
+
+    <div class="w-full bg-blue-600/10 border-y border-blue-500/20 py-2 overflow-hidden whitespace-nowrap">
+        <div class="animate-marquee text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/60">
+            <span>&nbsp;• SERVER STATUS: ONLINE • VIRGINIA FIVEPD v2.0 • JOIN THE DISCORD FOR UPDATES • NEW PATROL VEHICLES DEPLOYED •&nbsp;</span>
+            <span>&nbsp;• SERVER STATUS: ONLINE • VIRGINIA FIVEPD v2.0 • JOIN THE DISCORD FOR UPDATES • NEW PATROL VEHICLES DEPLOYED •&nbsp;</span>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto pt-24 pb-12 px-6 text-center">
+        
+        <div class="relative inline-block mb-4">
+            <div class="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full"></div>
+            <h2 class="relative text-7xl md:text-8xl font-black italic uppercase tracking-tighter leading-none">
+                Virginia <span class="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">FivePD</span>
+            </h2>
+        </div>
+        <p class="text-gray-500 text-xl font-light tracking-wide max-w-2xl mx-auto uppercase italic">
+            Experience the ultimate Law Enforcement simulation. <span class="text-white font-bold">Your watch begins now.</span>
+        </p>
+
+        <% if (user && user.id === owner) { %>
+            <div class="mt-12 inline-flex items-center gap-6 bg-yellow-500/5 border border-yellow-500/30 p-2 pr-6 rounded-full group hover:border-yellow-500 transition-all">
+                <div class="bg-yellow-500 text-black p-2 px-4 rounded-full font-black text-[10px] italic uppercase tracking-tighter">
+                    Security Level: Owner
+                </div>
+                <a href="/admin" class="text-yellow-500 font-black text-xs uppercase tracking-widest hover:text-white transition-colors">
+                    Access Command Center <span class="inline-block group-hover:translate-x-1 transition-transform">→</span>
+                </a>
+            </div>
+        <% } %>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24">
+            
+            <div class="bg-[#161b2c]/60 backdrop-blur-md p-10 rounded-[2rem] border border-white/5 hover:border-emerald-500/50 transition-all group relative overflow-hidden text-center">
+    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+    </div>
+
+    <h3 class="text-xs font-black text-emerald-500 uppercase tracking-[0.2em] mb-4">Marketplace</h3>
+    <h4 class="text-3xl font-black italic uppercase mb-4">View Store</h4>
+    <p class="text-gray-500 text-sm mb-8">Packs, Permissions, Ranks and more / <span class="text-emerald-400 font-black animate-pulse uppercase tracking-tighter">Sales Active</span></p>
+    
+    <a href="/store" class="block w-full bg-emerald-600 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-emerald-500 shadow-[0_10px_20px_rgba(16,185,129,0.2)] transition-all active:scale-95 text-white">
+        Explore Shop
+    </a>
+</div>
+
+            <div class="bg-[#161b2c]/60 backdrop-blur-md p-10 rounded-[2rem] border border-white/5 hover:border-[#5865F2]/50 transition-all group relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+                </div>
+                <h3 class="text-xs font-black text-[#5865F2] uppercase tracking-[0.2em] mb-4">Community</h3>
+                <h4 class="text-3xl font-black italic uppercase mb-4">Official Discord</h4>
+                <p class="text-gray-500 text-sm mb-8">Join the communications hub for radio codes and support.</p>
+                <a href="https://discord.gg/5xpZrjBNDq" target="_blank" class="block w-full border border-[#5865F2] py-4 rounded-xl font-black uppercase tracking-widest text-xs text-[#5865F2] hover:bg-[#5865F2] hover:text-white transition-all text-center">
+                    Join Server
+                </a>
+            </div>
+
+            <div class="bg-[#161b2c]/60 backdrop-blur-md p-10 rounded-[2rem] border border-white/5 hover:border-emerald-500/50 transition-all group relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 class="text-xs font-black text-emerald-500 uppercase tracking-[0.2em] mb-4">Resources</h3>
+                <h4 class="text-3xl font-black italic uppercase mb-4">Server Status</h4>
+                <p class="text-gray-500 text-sm mb-8">Check live player counts and current server latency.</p>
+                <a href="/status" class="block w-full bg-emerald-600/10 border border-emerald-500/20 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all text-center">
+                    View Live Stats
+                </a>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

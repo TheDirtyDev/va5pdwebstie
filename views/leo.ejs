@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VA5PD | Records & Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        .paper-shadow { shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
+        .official-seal { opacity: 0.05; pointer-events: none; position: absolute; }
+        body { font-family: 'Inter', sans-serif; }
+        .pdf-font { font-family: 'Libre+Baskerville', serif; }
+    </style>
+</head>
+<body class="bg-gray-200 min-h-screen flex flex-col" x-data="{ activeForm: 'none', view: 'entry' }">
+
+    <header class="bg-[#1a1a1a] text-white p-3 flex justify-between items-center border-b-4 border-yellow-600 shadow-lg">
+        <div class="flex items-center gap-4">
+            <div class="bg-white p-1 rounded-full w-10 h-10 flex items-center justify-center">
+                <span class="text-black font-black text-xs">VA5PD</span>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm tracking-widest uppercase">Department of Public Safety</h1>
+                <p class="text-[10px] text-gray-400 font-mono">OFFICIAL RECORDS DIVISION // v5.0.1</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-right">
+            <div class="pr-4 border-r border-gray-700">
+                <p class="text-[10px] uppercase text-yellow-600 font-bold tracking-tighter">Authenticated User</p>
+                <p class="text-xs font-bold uppercase"><%= user.username %></p>
+            </div>
+            <a href="/logout" class="text-[10px] bg-red-700 px-3 py-1 rounded hover:bg-red-600 transition-all font-bold">EXIT SYSTEM</a>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <aside class="w-64 bg-[#2a2a2a] p-4 flex flex-col gap-2">
+            <p class="text-[10px] text-gray-500 font-bold mb-2 uppercase tracking-widest">Administrative Tools</p>
+            <button @click="view = 'entry'; activeForm = 'incident'" class="w-full text-left p-3 rounded text-xs font-bold transition-all" :class="activeForm === 'incident' ? 'bg-yellow-600 text-black' : 'text-gray-300 hover:bg-gray-700'">
+                📄 INCIDENT REPORT (CASE)
+            </button>
+            <button @click="view = 'entry'; activeForm = 'ia'" class="w-full text-left p-3 rounded text-xs font-bold transition-all" :class="activeForm === 'ia' ? 'bg-yellow-600 text-black' : 'text-gray-300 hover:bg-gray-700'">
+                ⚖️ INTERNAL AFFAIRS FILING
+            </button>
+            <button @click="view = 'entry'; activeForm = 'warrant'" class="w-full text-left p-3 rounded text-xs font-bold transition-all" :class="activeForm === 'warrant' ? 'bg-yellow-600 text-black' : 'text-gray-300 hover:bg-gray-700'">
+                🚫 SEARCH WARRANT REQ.
+            </button>
+
+            <div class="mt-8 border-t border-gray-700 pt-4">
+                <p class="text-[10px] text-gray-500 font-bold mb-2 uppercase tracking-widest">Management</p>
+                <button @click="view = 'inbox'" class="w-full text-left p-3 rounded text-xs font-bold text-gray-300 hover:bg-gray-700 transition-all">
+                    📥 PENDING APPROVALS
+                </button>
+                <button class="w-full text-left p-3 rounded text-xs font-bold text-gray-300 hover:bg-gray-700 transition-all">
+                    📚 ARCHIVED RECORDS
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto flex justify-center bg-[#e0e0e0]">
+            
+            <div x-show="view === 'inbox'" class="w-full max-w-4xl">
+                <h2 class="text-2xl font-black text-gray-800 mb-6 border-b-2 border-gray-400 pb-2 italic">PENDING SUPERVISOR REVIEW</h2>
+                <div class="bg-white rounded shadow-md overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-100 uppercase text-gray-600 font-bold border-b">
+                            <tr>
+                                <th class="p-4">Case #</th>
+                                <th class="p-4">Reporting Officer</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-yellow-50 transition-all">
+                                <td class="p-4 font-bold">2026-IA-091</td>
+                                <td class="p-4 uppercase"><%= user.username %></td>
+                                <td class="p-4"><span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-[10px] font-black">INTERNAL AFFAIRS</span></td>
+                                <td class="p-4 text-gray-500">Mar 26, 2026</td>
+                                <td class="p-4 text-right"><button class="text-blue-600 font-bold hover:underline">REVIEW</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div x-show="view === 'entry' && activeForm !== 'none'" class="bg-white w-[850px] min-h-[1100px] shadow-2xl p-16 relative border border-gray-300 rounded-sm overflow-hidden mb-20">
+                <div class="absolute inset-0 official-seal flex items-center justify-center">
+                    <span class="text-[120px] font-black border-8 border-gray-400 rounded-full p-20 rotate-12">VA5PD</span>
+                </div>
+
+                <div class="flex justify-between items-start border-b-2 border-black pb-4 mb-8">
+                    <div>
+                        <h2 class="pdf-font text-3xl font-bold tracking-tighter">STATE OF MASSACHUSETTS</h2>
+                        <h3 class="font-bold text-sm">DEPARTMENT OF PUBLIC SAFETY - FORM <span x-text="activeForm.toUpperCase()"></span></h3>
+                    </div>
+                    <div class="text-right font-mono text-[10px]">
+                        <p>CONFIDENTIAL DOCUMENT</p>
+                        <p>ID: <span x-text="Math.floor(Math.random() * 100000)"></span></p>
+                    </div>
+                </div>
+
+                <form action="/leo/submit-form" method="POST" class="pdf-font space-y-6">
+                    <input type="hidden" name="formType" :value="activeForm">
+                    
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="border-b border-black pb-1">
+                            <label class="block text-[10px] font-bold uppercase mb-1">Reporting Official</label>
+                            <input type="text" value="<%= user.username %>" class="w-full bg-transparent outline-none italic font-bold" readonly>
+                        </div>
+                        <div class="border-b border-black pb-1">
+                            <label class="block text-[10px] font-bold uppercase mb-1">Date of Occurrence</label>
+                            <input type="date" class="w-full bg-transparent outline-none italic" required>
+                        </div>
+                    </div>
+
+                    <div class="border-b border-black pb-1">
+                        <label class="block text-[10px] font-bold uppercase mb-1">Subject / Suspect Name (If Applicable)</label>
+                        <input type="text" class="w-full bg-transparent outline-none uppercase font-bold" placeholder="LAST, FIRST, MIDDLE">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold uppercase bg-gray-100 p-1 border-l-4 border-black">Official Narrative of Events</label>
+                        <textarea rows="15" name="narrative" class="w-full border border-gray-300 p-4 leading-relaxed outline-none focus:border-black transition-all text-sm italic" placeholder="Provide a detailed, chronological account of the incident..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-8 pt-10">
+                        <div class="text-center italic">
+                            <div class="border-b border-black h-8 mb-1"></div>
+                            <p class="text-[9px] uppercase font-bold">Officer Signature</p>
+                        </div>
+                        <div class="text-center italic opacity-30">
+                            <div class="border-b border-dashed border-gray-400 h-8 mb-1"></div>
+                            <p class="text-[9px] uppercase font-bold">Supervisor Counter-Signature</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-12">
+                        <button type="submit" class="bg-black text-white px-8 py-3 font-bold text-xs hover:bg-yellow-600 hover:text-black transition-all shadow-lg uppercase tracking-widest">
+                            FINAL SUBMISSION TO RECORDS
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div x-show="activeForm === 'none' && view === 'entry'" class="text-center opacity-20 mt-40">
+                <p class="text-[100px] font-black italic select-none">RECORDS</p>
+                <p class="text-xs uppercase tracking-[1em] -mt-4">Select a form to begin processing</p>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

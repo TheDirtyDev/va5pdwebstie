@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VA5PD | Owner Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0b0f1a] text-white font-sans">
+    <%- include('partials/nav') %>
+    
+    <div class="max-w-7xl mx-auto py-12 px-6">
+        
+        <div class="mb-10">
+            <h1 class="text-4xl font-black italic uppercase tracking-tighter">Owner <span class="text-blue-500">Command Center</span></h1>
+            <p class="text-gray-500">Welcome back, Captain. Here is your server overview.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            
+            <div class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-cyan-500/50 transition-colors">
+                <div class="absolute -right-4 -top-4 text-cyan-500/10 group-hover:text-cyan-500/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </div>
+                <p class="text-cyan-500 uppercase text-[10px] font-black tracking-widest mb-1">Total Updates</p>
+                <h3 class="text-5xl font-black tabular-nums">
+                    <%= adminPanelData.stats.updates %>
+                </h3>
+            </div>
+
+            <div class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-amber-500/50 transition-colors">
+                <div class="absolute -right-4 -top-4 text-amber-500/10 group-hover:text-amber-500/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <p class="text-amber-500 uppercase text-[10px] font-black tracking-widest mb-1">Active Users</p>
+                <h3 class="text-5xl font-black tabular-nums">
+                    <%= adminPanelData.stats.activeUsers %>
+                </h3>
+            </div>
+
+            <div class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
+                <div class="absolute -right-4 -top-4 text-emerald-500/10 group-hover:text-emerald-500/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-emerald-500 uppercase text-[10px] font-black tracking-widest mb-1">Store Items</p>
+                <h3 class="text-5xl font-black tabular-nums">
+                    <%= adminPanelData.stats.items %>
+                </h3>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <div class="space-y-4">
+                <h4 class="text-xs font-black uppercase tracking-widest text-gray-500 px-2">Quick Actions</h4>
+                <a href="/updates" class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg shadow-black/20">
+                    <span class="font-bold uppercase italic group-hover:text-blue-400">Manage Updates</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </a>
+                <a href="/store" class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg shadow-black/20">
+                    <span class="font-bold uppercase italic group-hover:text-blue-400">Manage Store</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </a>
+                <a href="/status" class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg shadow-black/20">
+                    <span class="font-bold uppercase italic group-hover:text-blue-400">Server Health</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </a>
+            </div>
+            
+            <div class="lg:col-span-1 bg-[#161b2c] rounded-3xl border border-gray-800 overflow-hidden shadow-2xl">
+                <div class="p-6 border-b border-gray-800 flex justify-between items-center">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-gray-500">User Information</h4>
+                    <span class="flex items-center gap-2 text-[10px] bg-blue-600/10 text-blue-400 px-2 py-1 rounded font-bold uppercase tracking-tighter border border-blue-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        Active Session
+                    </span>
+                </div>
+                <div class="p-0">
+                    <table class="w-full text-left">
+                        <thead class="bg-[#0b0f1a] text-[10px] uppercase text-gray-500 font-black">
+                            <tr>
+                                <th class="p-4 text-center w-16">#</th>
+                                <th class="p-4">Username</th>
+                                <th class="p-4">Role</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                            <% adminPanelData.users.forEach((user, index) => { %>
+                                <tr class="hover:bg-blue-500/5 transition group">
+                                    <td class="p-4 text-center text-xs text-gray-600 font-mono"><%= index + 1 %></td>
+                                    <td class="p-4 font-bold text-sm text-gray-200"><%= user.username %></td>
+                                    <td class="p-4 text-xs">
+                                        <span class="font-mono text-gray-500 uppercase tracking-tighter">
+                                            <%= user.role %>
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <button class="text-[10px] font-black uppercase tracking-widest bg-blue-600 px-3 py-1 rounded hover:bg-blue-500 transition-all shadow-md shadow-blue-900/20 active:scale-95">View Profile</button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

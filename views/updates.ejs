@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VA5PD | Updates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        .glow-bg {
+            background: radial-gradient(circle at 50% -20%, #1e3a8a 0%, #0b0f1a 45%);
+        }
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #1e3a8a, transparent);
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f1a] text-white font-sans glow-bg min-h-screen">
+
+    <%- include('partials/nav') %>
+
+    <div class="max-w-5xl mx-auto py-16 px-6">
+        
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div>
+                <h2 class="text-6xl font-black italic uppercase tracking-tighter leading-none">
+                    Dev <span class="text-blue-500">Log</span>
+                </h2>
+                <p class="text-gray-500 uppercase text-xs tracking-[0.4em] mt-2">Operational changes & deployment history</p>
+            </div>
+            
+            <% if (user && user.id === owner) { %>
+                <button onclick="document.getElementById('postModal').classList.toggle('hidden')" class="bg-blue-600 hover:bg-blue-500 px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_10px_30px_rgba(37,99,235,0.3)] active:scale-95">
+                    + Initialize Update
+                </button>
+            <% } %>
+        </div>
+
+        <div id="postModal" class="hidden mb-16 bg-[#161b2c]/80 backdrop-blur-xl p-10 rounded-[2.5rem] border border-blue-500/30 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h3 class="text-blue-500 font-black uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
+                <span class="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></span> New Entry Protocol
+            </h3>
+            <form action="/updates/post" method="POST" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" name="title" placeholder="Protocol Name (e.g. V2.1 Deployment)" required class="w-full bg-[#0b0f1a] border border-white/5 rounded-xl p-4 outline-none focus:border-blue-500 transition-all font-bold">
+                    <input type="text" name="contributors" placeholder="Authorized Devs" class="w-full bg-[#0b0f1a] border border-white/5 rounded-xl p-4 outline-none focus:border-blue-500 transition-all font-bold text-yellow-500">
+                </div>
+                <textarea name="message" placeholder="Log entry details..." rows="4" required class="w-full bg-[#0b0f1a] border border-white/5 rounded-xl p-4 outline-none focus:border-blue-500 transition-all"></textarea>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" name="img1" placeholder="Asset URL 01" class="bg-[#0b0f1a] border border-white/5 rounded-xl p-3 text-xs">
+                    <input type="text" name="img2" placeholder="Asset URL 02" class="bg-[#0b0f1a] border border-white/5 rounded-xl p-3 text-xs">
+                    <input type="text" name="img3" placeholder="Asset URL 03" class="bg-[#0b0f1a] border border-white/5 rounded-xl p-3 text-xs">
+                </div>
+                
+                <button type="submit" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-blue-500 hover:text-white transition-all">
+                    Transmit Data
+                </button>
+            </form>
+        </div>
+
+        <div class="relative pl-12">
+            <div class="timeline-line"></div>
+            
+            <div class="space-y-12">
+                <% updates.forEach(item => { %>
+                    <div x-data="{ open: false }" class="relative group">
+                        <div class="absolute -left-[52px] top-6 h-4 w-4 rounded-full bg-[#0b0f1a] border-2 border-blue-500 group-hover:bg-blue-500 transition-colors z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                        
+                        <div class="bg-[#161b2c]/40 backdrop-blur-md rounded-[2.5rem] border border-white/5 overflow-hidden transition-all hover:border-white/10 hover:translate-x-1">
+                            
+                            <div class="p-8">
+                                <div class="flex justify-between items-start mb-6">
+                                    <div>
+                                        <p class="text-[10px] font-mono text-blue-500 uppercase tracking-widest mb-1">
+                                            <%= new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                        </p>
+                                        <h3 class="text-3xl font-black italic uppercase tracking-tighter text-white"><%= item.title %></h3>
+                                    </div>
+                                    
+                                    <% if (user && user.id === owner) { %>
+                                        <a href="/updates/delete/<%= item.id %>" onclick="return confirm('Purge this entry?')" class="text-gray-600 hover:text-red-500 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </a>
+                                    <% } %>
+                                </div>
+
+                                <p class="text-gray-400 leading-relaxed text-md mb-8 font-medium">
+                                    <%= item.message %>
+                                </p>
+
+                                <% if(item.img1 || item.img2 || item.img3) { %>
+                                    <button @click="open = !open" class="mb-6 flex items-center gap-3 px-5 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-blue-400 hover:bg-blue-600 hover:text-white transition-all">
+                                        <span x-text="open ? 'Close Visuals' : 'View Attachments'"></span>
+                                        <svg x-bind:class="open ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                <% } %>
+
+                                <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-4" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                    <% [item.img1, item.img2, item.img3].forEach(img => { %>
+                                        <% if(img && img.length > 5) { %> 
+                                            <div class="relative group/img overflow-hidden rounded-2xl border border-white/5 aspect-video">
+                                                <img src="<%= img %>" class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110">
+                                                <div class="absolute inset-0 bg-gradient-to-t from-[#0b0f1a] to-transparent opacity-60"></div>
+                                            </div>
+                                        <% } %>
+                                    <% }) %>
+                                </div>
+
+                                <div class="pt-6 border-t border-white/5 flex items-center gap-4">
+                                    <span class="text-[10px] text-gray-600 uppercase font-black tracking-widest">Authorized By</span>
+                                    <div class="flex items-center gap-2 px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
+                                        <div class="h-1.5 w-1.5 bg-yellow-500 rounded-full animate-pulse"></div>
+                                        <span class="text-[10px] font-black uppercase text-yellow-500 tracking-tighter">
+                                            <%= item.contributors || 'Root Dev' %>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
