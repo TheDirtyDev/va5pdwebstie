@@ -77,16 +77,45 @@
                 </div>
             </div>
 
-            <div class="bg-blue-600 p-8 rounded-[2.5rem] shadow-2xl flex flex-col justify-center relative overflow-hidden group">
-                <div class="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+<div class="bg-blue-600 p-8 rounded-[2.5rem] shadow-2xl flex flex-col justify-center relative overflow-hidden group">
+    <div class="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-110 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+    </div>
+
+    <div class="relative z-10">
+        <div class="flex items-center gap-2 mb-2">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-100 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            <p class="text-blue-100 text-[10px] font-black uppercase tracking-[0.2em]">Network Manager</p>
+        </div>
+        
+        <h4 class="text-white text-4xl font-black italic leading-tight mb-6">VACORE<br>API</h4>
+
+        <div class="grid grid-cols-2 gap-4 border-t border-white/20 pt-6">
+            <div>
+                <p class="text-blue-200 text-[9px] font-black uppercase tracking-widest">Uptime</p>
+                <p class="text-white font-mono font-bold text-lg">99.9%</p>
+            </div>
+            <div>
+                <p class="text-blue-200 text-[9px] font-black uppercase tracking-widest">Latency</p>
+                <p class="text-white font-mono font-bold text-lg">24<span class="text-[10px] ml-1">MS</span></p>
+            </div>
+            <div class="col-span-2">
+                <div class="flex justify-between items-end mb-1">
+                    <p class="text-blue-200 text-[9px] font-black uppercase tracking-widest">System Load</p>
+                    <p class="text-white text-[10px] font-bold">STABLE</p>
                 </div>
-                <p class="text-blue-200 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Network Manager</p>
-                <h4 class="text-white text-4xl font-black italic leading-tight">VACORE<br>API</h4>
+                <div class="w-full bg-white/20 h-1 rounded-full overflow-hidden">
+                    <div class="bg-white h-full w-[35%] group-hover:w-[60%] transition-all duration-1000 ease-in-out"></div>
+                </div>
             </div>
         </div>
+    </div>
+</div>
 
         <div class="bg-[#161b2c]/40 backdrop-blur-md rounded-[2.5rem] border border-white/5 overflow-hidden">
             <div class="px-10 py-6 border-b border-white/5 flex justify-between items-center bg-white/5">
