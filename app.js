@@ -99,7 +99,7 @@ app.get('/logout', (req, res) => {
 app.get('/status', async (req, res) => {
     // Configuration
     const JOIN_CODE = "9pvveb";
-    const HARDCODED_NAME = "Virginia FivePD";
+    const HARDCODED_NAME = "Virginia FivePD | Active Staff/LEO | Apply now for a department!";
     
     // Default state if API is down or server is offline
     let serverData = { 
