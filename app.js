@@ -41,7 +41,7 @@ passport.deserializeUser((obj, done) => done(null, obj));
 passport.use(new DiscordStrategy({
     clientID: '1461768848620654743', 
     clientSecret: 'aOo_NMuSub53rtZNoWOKd9xo98OpCRSZ', 
-    callbackURL: 'http://localhost:4000/auth/discord/callback',
+    callbackURL: 'https://va5pd.vercel.app/api/auth/callback',
     scope: ['identify', 'guilds', 'guilds.members.read']
 }, (accessToken, refreshToken, profile, done) => {
     // CRITICAL: Attach the accessToken so we can query roles later
