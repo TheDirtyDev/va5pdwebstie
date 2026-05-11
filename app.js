@@ -344,6 +344,83 @@ app.get('/store/delete/:id', (req, res) => {
     });
 });
 
+// EMAIL FUNCTION
+app.post('/tools/email-receipt', async (req, res) => {
+    const { email, handler, card, taxRate, signature, items, subtotal, taxAmount, grandTotal } = req.body;
+
+    // Configuration for Gmail
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'virginia5pd.support@gmail.com', 
+            pass: 'dvqvajhgmxuolilb' // Use your App Password here
+        }
+    });
+
+    // Build the table rows for the HTML email
+    const itemRows = items.map(item => `
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px; font-family: sans-serif; font-size: 14px;">${item.desc}</td>
+            <td style="padding: 10px; font-family: sans-serif; font-size: 14px; text-align: right; font-weight: bold;">$${item.price}</td>
+        </tr>
+    `).join('');
+
+    const htmlBody = `
+    <div style="background-color: #f8fafc; padding: 40px; font-family: sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <div style="background-color: #0b0f1a; padding: 30px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px; letter-spacing: 2px;">VA5PD NETWORK</h1>
+                <p style="color: #64748b; margin: 5px 0 0; font-size: 12px; text-transform: uppercase;">Transaction Receipt</p>
+            </div>
+            <div style="padding: 30px;">
+                <table width="100%" style="margin-bottom: 20px;">
+                    <tr>
+                        <td style="font-size: 12px; color: #64748b;"><strong>BILLED TO:</strong><br>${email}</td>
+                        <td style="font-size: 12px; color: #64748b; text-align: right;"><strong>DATE:</strong><br>${new Date().toLocaleDateString()}</td>
+                    </tr>
+                </table>
+                
+                <table width="100%" style="border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9;">
+                            <th style="text-align: left; padding: 10px; font-size: 12px;">Item Description</th>
+                            <th style="text-align: right; padding: 10px; font-size: 12px;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>${itemRows}</tbody>
+                </table>
+
+                <div style="text-align: right; border-top: 2px solid #f1f5f9; padding-top: 15px;">
+                    <p style="margin: 5px 0; font-size: 14px;">Subtotal: <strong>$${subtotal}</strong></p>
+                    <p style="margin: 5px 0; font-size: 14px;">Tax (${taxRate}%): <strong>$${taxAmount}</strong></p>
+                    <p style="margin: 10px 0; font-size: 20px; color: #ef4444;"><strong>Total: $${grandTotal}</strong></p>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #e2e8f0;">
+                    <p style="font-size: 10px; color: #94a3b8; margin-bottom: 5px;">AUTHORIZED HANDLER: ${handler}</p>
+                    <p style="font-size: 10px; color: #94a3b8; margin-bottom: 5px;">PAYMENT METHOD: ${card}</p>
+                    <p style="font-family: 'Georgia', serif; font-size: 24px; color: #ef4444; margin: 10px 0;">${signature}</p>
+                </div>
+            </div>
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; font-size: 11px; color: #94a3b8;">
+                Thank you for choosing VA5PD. This is an automated receipt.
+            </div>
+        </div>
+    </div>`;
+
+    try {
+        await transporter.sendMail({
+            from: '"VA5PD Network" <virginia5pd.support@gmail.com>',
+            to: email,
+            subject: 'Your Official VA5PD Receipt',
+            html: htmlBody // Send HTML here
+        });
+        res.status(200).send('OK');
+    } catch (err) {
+        console.error("Nodemailer Error:", err.message);
+        res.status(500).send(err.message);
+    }
+});
 // --- VERCEL EXPORT ---
 if (process.env.NODE_ENV !== 'production') {
     app.listen(4000, () => console.log('Running on http://localhost:4000'));
