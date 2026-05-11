@@ -95,6 +95,28 @@ app.get('/logout', (req, res) => {
     req.logout(() => res.redirect('/'));
 });
 
+// STATUS 
+app.get('/status', async (req, res) => {
+    const JOIN_CODE = "9pvveb";
+    let serverData = { online: false, players: [], maxPlayers: 0, name: "DD-RP Server", joinUrl: `https://cfx.re/join/${JOIN_CODE}` };
+    try {
+        const response = await axios.get(`https://servers-frontend.fivem.net/api/servers/single/${JOIN_CODE}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        if (response.data?.Data) {
+            const data = response.data.Data;
+            serverData = {
+                online: true,
+                players: data.players,
+                maxPlayers: data.sv_maxclients,
+                name: data.hostname.replace(/\^[0-9]/g, ""),
+                joinUrl: `https://cfx.re/join/${JOIN_CODE}`
+            };
+        }
+    } catch (e) { serverData.online = false; }
+    res.render('status', { user: req.user, server: serverData });
+});
+
 // STORE PAGE
 app.get('/store', (req, res) => {
     db.query("SELECT * FROM store_items ORDER BY is_announcement DESC, createdAt DESC", (err, results) => {
