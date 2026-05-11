@@ -112,33 +112,59 @@ app.get('/store', (req, res) => {
 });
 
 // ADMIN PANEL
-app.get('/admin', (req, res) => {
-    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+app.get('/admin', async (req, res) => {
+    // 1. Security Check
+    if (!req.user || req.user.id !== OWNER_ID) {
+        return res.status(403).send("Unauthorized Access");
+    }
 
-    const queries = [
-        "SELECT COUNT(*) as count FROM updates",
-        "SELECT COUNT(*) as count FROM store_items",
-        "SELECT * FROM reports ORDER BY created_at DESC LIMIT 5",
-        "SELECT COUNT(*) as count FROM reports WHERE status = 'Pending'"
-    ].join('; ');
+    try {
+        // 2. Fetch Data using Promises for better stability on Vercel
+        const promiseDb = db.promise();
 
-    db.query(queries, (err, results) => {
-        if (err) return res.status(500).send("Database Error");
+        // Run all counts at once
+        const [updateCount] = await promiseDb.query("SELECT COUNT(*) as count FROM updates");
+        const [itemCount] = await promiseDb.query("SELECT COUNT(*) as count FROM store_items");
+        
+        // Use a try/catch specifically for reports in case the table is missing
+        let recentReports = [];
+        let pendingCount = 0;
+        
+        try {
+            const [reports] = await promiseDb.query("SELECT * FROM reports ORDER BY created_at DESC LIMIT 5");
+            const [pending] = await promiseDb.query("SELECT COUNT(*) as count FROM reports WHERE status = 'Pending'");
+            recentReports = reports;
+            pendingCount = pending[0].count;
+        } catch (reportErr) {
+            console.log("Note: Reports table might be missing, skipping report stats.");
+        }
+
+        // 3. Render the full-screen Admin Dashboard
         res.render('admin_panel', {
             user: req.user,
             owner: OWNER_ID,
             adminPanelData: {
                 stats: {
-                    updates: results[0][0].count,
-                    items: results[1][0].count,
+                    updates: updateCount[0].count,
+                    items: itemCount[0].count,
                     activeUsers: 0, 
-                    pendingReports: results[3][0].count
+                    pendingReports: pendingCount
                 },
                 users: [], 
-                recentReports: results[2]
+                recentReports: recentReports
             }
         });
-    });
+
+    } catch (err) {
+        console.error("Admin Route Error:", err);
+        res.status(500).send(`
+            <div style="background:#111; color:#ff4444; padding:20px; font-family:monospace;">
+                <h1>Admin Panel Error</h1>
+                <p>${err.message}</p>
+                <a href="/" style="color:#fff;">Back Home</a>
+            </div>
+        `);
+    }
 });
 
 // LEO DASHBOARD
