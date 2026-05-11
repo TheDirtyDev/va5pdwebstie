@@ -25,14 +25,15 @@
         symbols: { USD: '$', GBP: '£', EUR: '€' },
         convert(price) {
             return this.symbols[this.currency] + (price * this.rates[this.currency]).toFixed(2);
-        }
+        },
+        policyOpen: false
     }">
 
     <%- include('partials/nav') %>
 
     <div class="max-w-7xl mx-auto py-16 px-6">
         
-        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
             <div>
                 <h2 class="text-6xl font-black italic uppercase tracking-tighter leading-none">
                     Server <span class="text-blue-500">Store</span>
@@ -41,6 +42,14 @@
             </div>
             
             <div class="flex flex-col md:flex-row gap-4 items-center">
+                <button @click="policyOpen = !policyOpen" 
+                    class="bg-[#161b2c] hover:bg-blue-600 border border-white/5 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 shadow-lg">
+                    <span x-text="policyOpen ? 'Close Protocols' : 'Policies & Refunds'"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform duration-300" :class="policyOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
                 <div class="flex bg-[#161b2c] p-1 rounded-xl border border-white/5 shadow-xl">
                     <template x-for="(rate, cur) in rates">
                         <button @click="currency = cur" 
@@ -56,6 +65,57 @@
                         + Create Product
                     </button>
                 <% } %>
+            </div>
+        </div>
+
+        <div x-show="policyOpen" 
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 max-h-0"
+             x-transition:enter-end="opacity-100 max-h-[1500px]"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 max-h-[1500px]"
+             x-transition:leave-end="opacity-0 max-h-0"
+             class="overflow-hidden mb-12">
+            <div class="p-10 bg-[#161b2c]/60 backdrop-blur-xl rounded-[2.5rem] border border-blue-500/20 relative shadow-2xl">
+                <button @click="policyOpen = false" class="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <h3 class="text-blue-500 font-black uppercase text-sm tracking-[0.3em] mb-8 italic">VA5PD Store Protocols</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    <div>
+                        <h4 class="text-white font-black uppercase text-[10px] tracking-widest mb-3 opacity-50">General Conduct</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Upon purchase, donations do not grant the right to break in-game or Discord rules. At any time, we reserve the right to remove donor perks or packs if they are abused, without refund. If you receive a permanent ban, no refunds will be issued.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-black uppercase text-[10px] tracking-widest mb-3 opacity-50">Refund & Dispute Policy</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            We do not offer refunds. Any attempt to charge back or file a payment dispute through a payment platform will result in a global ban from the <span class="text-blue-400">VA5PD</span> community.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-black uppercase text-[10px] tracking-widest mb-3 opacity-50">Asset Recovery</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            If you leave Discord and later return, you may reclaim any packs you previously purchased one time. To do so, please open a ticket and request Store Management.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-black uppercase text-[10px] tracking-widest mb-3 opacity-50">Transaction Security</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            All payments must be completed within a ticket with either an Owner or a trusted Store Team member. Any unverified or unauthorized purchases will be considered invalid. We do not allow reselling or trading of packs or perks.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">By purchasing, you automatically agree to the VA5PD terms.</p>
+                    <a href="#" @click.prevent="alert('Please open a ticket to request the signed PDF version.')" class="text-blue-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">Request Detailed Copy (Signed) &rarr;</a>
+                </div>
             </div>
         </div>
 
@@ -143,7 +203,7 @@
                                     
                                     <template x-if="isLong">
                                         <button @click="expanded = !expanded" 
-                                                class="text-blue-500 text-[10px] font-black uppercase tracking-widest mt-2 hover:text-blue-400 transition-colors">
+                                                class="text-blue-500 text-[10px] font-black uppercase tracking-widest mt-2 hover:text-blue-400 transition-colors flex items-center gap-1">
                                             <span x-text="expanded ? 'Read Less -' : 'Read More +'"></span>
                                         </button>
                                     </template>
