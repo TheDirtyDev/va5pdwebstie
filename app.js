@@ -12,13 +12,19 @@ const OWNER_ID = "895054825316839424"; // J. COX DISCORD ID
 const GUILD_ID = "1447360424487030816"; // VA5PD MAIN DISCORD
 const LEO_ROLE_ID = "1465133005977944237"; // PUBLIC LAW
 
+
 // --- DATABASE CONNECTION ---
 const db = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '',
-    database: 'fivem_reports',
-    multipleStatements: true 
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'fivem_reports',
+    port: process.env.DB_PORT || 4000,
+    multipleStatements: true,
+    ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
+    }
 });
 
 // --- MIDDLEWARE ---
