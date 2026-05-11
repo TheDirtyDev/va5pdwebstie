@@ -65,13 +65,19 @@ app.use(passport.session());
 
 // --- SECURITY HELPER ---
 const checkAdmin = (req) => {
-    return req.user && req.user.roles && req.user.roles.includes(OWNER_ROLE_ID);
+    if (!req.user) return false;
+    // Fix: Checks for the Role OR the specific User ID so you never get locked out
+    const hasRole = req.user.roles && req.user.roles.includes(OWNER_ROLE_ID);
+    const isOwner = req.user.id === OWNER_ID;
+    return hasRole || isOwner;
 };
 
 // --- AUTH ROUTES ---
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedirect: '/' }), (req, res) => res.redirect('/'));
-app.get('/logout', (req, res) => req.logout(() => res.redirect('/')));
+app.get('/logout', (req, res) => {
+    req.logout(() => res.redirect('/'));
+});
 
 // --- PAGE ROUTES ---
 
@@ -118,12 +124,25 @@ app.get('/admin', async (req, res) => {
     if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
     try {
         const promiseDb = db.promise();
-        const [[updates], [items]] = await Promise.all([
-            promiseDb.query("SELECT COUNT(*) as count FROM updates"),
-            promiseDb.query("SELECT COUNT(*) as count FROM store_items")
-        ]);
-        res.render('admin_panel', { user: req.user, isAdmin: true, adminPanelData: { stats: { updates: updates[0].count, items: items[0].count, activeUsers: 0 }, users: [] } });
-    } catch (err) { res.status(500).send(err.message); }
+        // Fixed destructuring to correctly handle promise pool results
+        const [updatesRes] = await promiseDb.query("SELECT COUNT(*) as count FROM updates");
+        const [itemsRes] = await promiseDb.query("SELECT COUNT(*) as count FROM store_items");
+        
+        res.render('admin_panel', { 
+            user: req.user, 
+            isAdmin: true, 
+            adminPanelData: { 
+                stats: { 
+                    updates: updatesRes[0].count, 
+                    items: itemsRes[0].count, 
+                    activeUsers: 0 
+                }, 
+                users: [] 
+            } 
+        });
+    } catch (err) { 
+        res.status(500).send(err.message); 
+    }
 });
 
 // --- POSTING & TOOLS ---
@@ -139,8 +158,10 @@ app.post('/updates/post', async (req, res) => {
 
 app.get('/updates/delete/:id', async (req, res) => {
     if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
-    await db.promise().query("DELETE FROM updates WHERE id = ?", [req.params.id]);
-    res.redirect('/updates');
+    try {
+        await db.promise().query("DELETE FROM updates WHERE id = ?", [req.params.id]);
+        res.redirect('/updates');
+    } catch (err) { res.status(500).send(err.message); }
 });
 
 app.post('/store/add', async (req, res) => {
@@ -155,19 +176,36 @@ app.post('/store/add', async (req, res) => {
 
 app.get('/store/delete/:id', async (req, res) => {
     if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
-    await db.promise().query("DELETE FROM store_items WHERE id = ?", [req.params.id]);
-    res.redirect('/store');
+    try {
+        await db.promise().query("DELETE FROM store_items WHERE id = ?", [req.params.id]);
+        res.redirect('/store');
+    } catch (err) { res.status(500).send(err.message); }
 });
 
 app.post('/tools/email-receipt', async (req, res) => {
     const { email, handler, card, taxRate, signature, items, grandTotal } = req.body;
     if (!email || !items) return res.status(400).send("Missing data.");
-    let transporter = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } });
+    
+    let transporter = nodemailer.createTransport({ 
+        host: 'smtp.gmail.com', 
+        port: 465, 
+        secure: true, 
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } 
+    });
+
     const itemRows = items.map(i => `<tr><td>${i.desc}</td><td>$${i.price}</td></tr>`).join('');
+    
     try {
-        await transporter.sendMail({ from: '"VA5PD Network" <virginia5pd.support@gmail.com>', to: email, subject: 'Official VA5PD Receipt', html: `<h2>Receipt</h2><table>${itemRows}</table><p>Total: ${grandTotal}</p>` });
+        await transporter.sendMail({ 
+            from: `"VA5PD Network" <${process.env.EMAIL_USER}>`, 
+            to: email, 
+            subject: 'Official VA5PD Receipt', 
+            html: `<h2>Receipt</h2><table>${itemRows}</table><p>Total: ${grandTotal}</p>` 
+        });
         res.status(200).send('OK');
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 // --- VERCEL EXPORT ---
