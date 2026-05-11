@@ -44,7 +44,7 @@
             <div class="flex flex-col md:flex-row gap-4 items-center">
                 <button @click="policyOpen = !policyOpen" 
                     class="bg-[#161b2c] hover:bg-blue-600 border border-white/5 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 shadow-lg">
-                    <span x-text="policyOpen ? 'Close Protocols' : 'Policies & Refunds'"></span>
+                    <span x-text="policyOpen ? 'Close Menu' : 'Policies & Refunds'"></span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform duration-300" :class="policyOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -83,7 +83,7 @@
                     </svg>
                 </button>
 
-                <h3 class="text-blue-500 font-black uppercase text-sm tracking-[0.3em] mb-8 italic">VA5PD Store Protocols</h3>
+                <h3 class="text-blue-500 font-black uppercase text-sm tracking-[0.3em] mb-8 italic">VA5PD Store Resources</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <div>
