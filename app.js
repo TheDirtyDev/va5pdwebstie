@@ -51,7 +51,7 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 passport.use(new DiscordStrategy({
-    clientID: '1461768848620654743', 
+    clientID: '1447464281540005888', 
     clientSecret: process.env.DISCORD_CLIENT_SECRET, 
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
     scope: ['identify', 'guilds', 'guilds.members.read']
