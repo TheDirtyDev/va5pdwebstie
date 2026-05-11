@@ -11,7 +11,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // --- CONFIGURATION ---
-const OWNER_ID = "895054825316839424"; 
+const OWNER_ROLE_ID = "1449514984290783433"; 
 const GUILD_ID = "1447360424487030816"; 
 
 // --- DATABASE CONNECTION ---
@@ -149,45 +149,38 @@ app.get('/store', (req, res) => {
 
 // ADMIN PANEL
 app.get('/admin', async (req, res) => {
-    // 1. Security Check
-    if (!req.user || req.user.id !== OWNER_ID) {
-        return res.status(403).send("Unauthorized Access");
+    // 1. Security Check: Checks if user exists and has the required Role ID
+    // Note: This assumes req.user.roles is an array of IDs from your Discord Strategy
+    const hasAdminRole = req.user && req.user.roles && req.user.roles.includes(OWNER_ROLE_ID);
+
+    if (!hasAdminRole) {
+        return res.status(403).send(`
+            <div style="background:#0b0f1a; color:#ef4444; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif;">
+                <h1 style="font-weight:900; letter-spacing:-1px;">UNAUTHORIZED ACCESS</h1>
+                <p style="color:#64748b;">Required Role: ${OWNER_ROLE_ID}</p>
+                <a href="/" style="margin-top:20px; color:#fff; text-decoration:none; border:1px solid #333; padding:10px 20px; border-radius:8px;">Return to Home</a>
+            </div>
+        `);
     }
 
     try {
-        // 2. Fetch Data using Promises for better stability on Vercel
+        // 2. Fetch Data using Promises for stability
         const promiseDb = db.promise();
 
-        // Run all counts at once
+        // Run counts for Updates and Store Items
         const [updateCount] = await promiseDb.query("SELECT COUNT(*) as count FROM updates");
         const [itemCount] = await promiseDb.query("SELECT COUNT(*) as count FROM store_items");
-        
-        // Use a try/catch specifically for reports in case the table is missing
-        let recentReports = [];
-        let pendingCount = 0;
-        
-        try {
-            const [reports] = await promiseDb.query("SELECT * FROM reports ORDER BY created_at DESC LIMIT 5");
-            const [pending] = await promiseDb.query("SELECT COUNT(*) as count FROM reports WHERE status = 'Pending'");
-            recentReports = reports;
-            pendingCount = pending[0].count;
-        } catch (reportErr) {
-            console.log("Note: Reports table might be missing, skipping report stats.");
-        }
 
-        // 3. Render the full-screen Admin Dashboard
-        res.render('admin_panel', {
+        // 3. Render the Admin Dashboard
+        res.render('admin_panel', { 
             user: req.user,
-            owner: OWNER_ID,
             adminPanelData: {
                 stats: {
                     updates: updateCount[0].count,
                     items: itemCount[0].count,
-                    activeUsers: 0, 
-                    pendingReports: pendingCount
+                    activeUsers: 0 // You can replace this with a real query if needed later
                 },
-                users: [], 
-                recentReports: recentReports
+                users: []
             }
         });
 
@@ -195,7 +188,7 @@ app.get('/admin', async (req, res) => {
         console.error("Admin Route Error:", err);
         res.status(500).send(`
             <div style="background:#111; color:#ff4444; padding:20px; font-family:monospace;">
-                <h1>Admin Panel Error</h1>
+                <h1>Admin Panel Terminal Error</h1>
                 <p>${err.message}</p>
                 <a href="/" style="color:#fff;">Back Home</a>
             </div>
