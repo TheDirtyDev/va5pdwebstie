@@ -13,12 +13,11 @@ const GUILD_ID = "1447360424487030816";
 const LEO_ROLE_ID = "1465133005977944237"; 
 
 // --- DATABASE CONNECTION ---
-// Using createPool instead of createConnection is much better for Vercel's serverless nature
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME || 'fivem_reports',
+    database: 'fivem', // Updated database name
     port: process.env.DB_PORT || 4000,
     waitForConnections: true,
     connectionLimit: 10,
@@ -32,8 +31,6 @@ const db = mysql.createPool({
 // --- MIDDLEWARE ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Vercel Path Fixes
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -83,7 +80,7 @@ async function getDiscordMember(user) {
     }
 }
 
-// --- PAGE ROUTES ---
+// --- ROUTES ---
 
 app.get('/', (req, res) => {
     res.render('home', { user: req.user, owner: OWNER_ID });
@@ -98,6 +95,7 @@ app.get('/logout', (req, res) => {
     req.logout(() => res.redirect('/'));
 });
 
+// STORE PAGE
 app.get('/store', (req, res) => {
     db.query("SELECT * FROM store_items ORDER BY is_announcement DESC, createdAt DESC", (err, results) => {
         if (err) {
@@ -113,14 +111,49 @@ app.get('/store', (req, res) => {
     });
 });
 
-// ... Keep your other routes (leo, admin, etc.) here ...
+// LEO DASHBOARD
+app.get('/leo', async (req, res) => {
+    if (!req.user) return res.redirect('/auth/discord');
+    const member = await getDiscordMember(req.user);
+    
+    if (member && member.roles.includes(LEO_ROLE_ID)) {
+        res.render('leo', { user: req.user, member, owner: OWNER_ID });
+    } else {
+        res.status(403).send("Access Denied: LEO Role Required");
+    }
+});
+
+// UPDATES PAGE
+app.get('/updates', (req, res) => {
+    db.query("SELECT * FROM updates ORDER BY createdAt DESC", (err, results) => {
+        if (err) return res.status(500).send(err.message);
+        res.render('updates', { user: req.user, updates: results, owner: OWNER_ID });
+    });
+});
+
+// --- ADMIN LOGIC ---
+app.post('/store/add', (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    const { title, description, price, sale_price, image, category, is_announcement } = req.body;
+    const announcement = is_announcement ? 1 : 0;
+    db.query("INSERT INTO store_items (title, description, price, sale_price, image, category, is_announcement) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+    [title, description, price, sale_price || null, image, category, announcement], (err) => {
+        if (err) return res.status(500).send(err.message);
+        res.redirect('/store');
+    });
+});
+
+app.get('/store/delete/:id', (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    db.query("DELETE FROM store_items WHERE id = ?", [req.params.id], (err) => {
+        if (err) return res.status(500).send(err.message);
+        res.redirect('/store');
+    });
+});
 
 // --- VERCEL EXPORT ---
-// IMPORTANT: Vercel needs the app exported, not just listening
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(4000, () => {
-        console.log('Web running on http://localhost:4000');
-    });
+    app.listen(4000, () => console.log('Running on http://localhost:4000'));
 }
 
 module.exports = app;
