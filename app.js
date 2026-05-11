@@ -11,7 +11,7 @@ const app = express();
 
 // --- CONFIGURATION ---
 const OWNER_ROLE_ID = "1449514984290783433"; 
-const OWNER_ID = "895054825316839424"; // Kept this for your ID-specific checks
+const OWNER_ID = "895054825316839424"; 
 const GUILD_ID = "1447360424487030816"; 
 
 // --- DATABASE CONNECTION ---
