@@ -187,6 +187,94 @@ app.get('/updates', (req, res) => {
     });
 });
 
+// --- UPDATES LOGIC ---
+
+app.post('/updates/post', async (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    
+    const { title, message, contributors, img1, img2, img3 } = req.body;
+    const query = "INSERT INTO updates (title, message, contributors, img1, img2, img3) VALUES (?, ?, ?, ?, ?, ?)";
+    
+    try {
+        await db.promise().query(query, [title, message, contributors, img1, img2, img3]);
+        res.redirect('/updates');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error posting update: " + err.message);
+    }
+});
+
+app.get('/updates/delete/:id', async (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    
+    try {
+        await db.promise().query("DELETE FROM updates WHERE id = ?", [req.params.id]);
+        res.redirect('/updates');
+    } catch (err) {
+        res.status(500).send("Error deleting update.");
+    }
+});
+
+// --- STORE LOGIC ---
+
+app.post('/store/add', async (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    
+    const { title, description, price, sale_price, image, category, is_announcement } = req.body;
+    // Checkboxes only send a value if checked; we convert it to 1 or 0 for MySQL
+    const announcement = (is_announcement === '1' || is_announcement === 'on') ? 1 : 0;
+    
+    const query = "INSERT INTO store_items (title, description, price, sale_price, image, category, is_announcement) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    
+    try {
+        await db.promise().query(query, [
+            title, 
+            description, 
+            price, 
+            sale_price || null, 
+            image || null, 
+            category, 
+            announcement
+        ]);
+        res.redirect('/store');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error adding product.");
+    }
+});
+
+app.post('/store/edit/:id', async (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    
+    const { title, description, price, sale_price, image, category } = req.body;
+    const query = "UPDATE store_items SET title=?, description=?, price=?, sale_price=?, image=?, category=? WHERE id=?";
+    
+    try {
+        await db.promise().query(query, [
+            title, 
+            description, 
+            price, 
+            sale_price || null, 
+            image || null, 
+            category, 
+            req.params.id
+        ]);
+        res.redirect('/store');
+    } catch (err) {
+        res.status(500).send("Error editing product.");
+    }
+});
+
+app.get('/store/delete/:id', async (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+    
+    try {
+        await db.promise().query("DELETE FROM store_items WHERE id = ?", [req.params.id]);
+        res.redirect('/store');
+    } catch (err) {
+        res.status(500).send("Error deleting product.");
+    }
+});
 // --- ADMIN LOGIC ---
 app.post('/store/add', (req, res) => {
     if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
