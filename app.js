@@ -10,7 +10,6 @@ const app = express();
 // --- CONFIGURATION ---
 const OWNER_ID = "895054825316839424"; 
 const GUILD_ID = "1447360424487030816"; 
-const LEO_ROLE_ID = "1465133005977944237"; 
 
 // --- DATABASE CONNECTION ---
 const db = mysql.createPool({
@@ -64,21 +63,6 @@ passport.use(new DiscordStrategy({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --- LEO PERMISSION CHECKER ---
-async function getDiscordMember(user) {
-    const token = user.accessToken;
-    if (!token) return null;
-
-    try {
-        const response = await axios.get(
-            `https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`,
-            { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-        return response.data;
-    } catch (error) {
-        return null;
-    }
-}
 
 // --- ROUTES ---
 
@@ -213,18 +197,6 @@ app.get('/admin', async (req, res) => {
                 <a href="/" style="color:#fff;">Back Home</a>
             </div>
         `);
-    }
-});
-
-// LEO DASHBOARD
-app.get('/leo', async (req, res) => {
-    if (!req.user) return res.redirect('/auth/discord');
-    const member = await getDiscordMember(req.user);
-    
-    if (member && member.roles.includes(LEO_ROLE_ID)) {
-        res.render('leo', { user: req.user, member, owner: OWNER_ID });
-    } else {
-        res.status(403).send("Access Denied: LEO Role Required");
     }
 });
 
