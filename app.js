@@ -95,26 +95,53 @@ app.get('/logout', (req, res) => {
     req.logout(() => res.redirect('/'));
 });
 
-// STATUS 
+// --- SERVER STATUS ROUTE ---
 app.get('/status', async (req, res) => {
+    // Configuration
     const JOIN_CODE = "9pvveb";
-    let serverData = { online: false, players: [], maxPlayers: 0, name: "DD-RP Server", joinUrl: `https://cfx.re/join/${JOIN_CODE}` };
+    const HARDCODED_NAME = "Virginia FivePD";
+    
+    // Default state if API is down or server is offline
+    let serverData = { 
+        online: false, 
+        players: [], 
+        maxPlayers: 64, // Default fallback
+        name: HARDCODED_NAME, 
+        joinUrl: `https://cfx.re/join/${JOIN_CODE}` 
+    };
+
     try {
+        // Fetching from FiveM Proxy API
         const response = await axios.get(`https://servers-frontend.fivem.net/api/servers/single/${JOIN_CODE}`, {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
+            headers: { 
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'application/json'
+            },
+            timeout: 5000 // 5 second timeout to prevent Vercel hanging
         });
-        if (response.data?.Data) {
+
+        if (response.data && response.data.Data) {
             const data = response.data.Data;
+            
             serverData = {
                 online: true,
-                players: data.players,
-                maxPlayers: data.sv_maxclients,
-                name: data.hostname.replace(/\^[0-9]/g, ""),
+                players: data.players || [],
+                maxPlayers: data.sv_maxclients || 64,
+                name: HARDCODED_NAME, // Overriding the messy API hostname
                 joinUrl: `https://cfx.re/join/${JOIN_CODE}`
             };
         }
-    } catch (e) { serverData.online = false; }
-    res.render('status', { user: req.user, server: serverData });
+    } catch (error) {
+        console.error("FiveM API Fetch Error:", error.message);
+        // We keep serverData.online as false, but the name remains "Virginia FivePD"
+        serverData.online = false;
+    }
+
+    // Render the status page with our user context and hard-coded server data
+    res.render('status', { 
+        user: req.user, 
+        server: serverData 
+    });
 });
 
 // STORE PAGE
