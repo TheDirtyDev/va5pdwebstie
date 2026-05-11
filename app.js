@@ -111,6 +111,36 @@ app.get('/store', (req, res) => {
     });
 });
 
+// ADMIN PANEL
+app.get('/admin', (req, res) => {
+    if (!req.user || req.user.id !== OWNER_ID) return res.status(403).send("Unauthorized");
+
+    const queries = [
+        "SELECT COUNT(*) as count FROM updates",
+        "SELECT COUNT(*) as count FROM store_items",
+        "SELECT * FROM reports ORDER BY created_at DESC LIMIT 5",
+        "SELECT COUNT(*) as count FROM reports WHERE status = 'Pending'"
+    ].join('; ');
+
+    db.query(queries, (err, results) => {
+        if (err) return res.status(500).send("Database Error");
+        res.render('admin_panel', {
+            user: req.user,
+            owner: OWNER_ID,
+            adminPanelData: {
+                stats: {
+                    updates: results[0][0].count,
+                    items: results[1][0].count,
+                    activeUsers: 0, 
+                    pendingReports: results[3][0].count
+                },
+                users: [], 
+                recentReports: results[2]
+            }
+        });
+    });
+});
+
 // LEO DASHBOARD
 app.get('/leo', async (req, res) => {
     if (!req.user) return res.redirect('/auth/discord');
