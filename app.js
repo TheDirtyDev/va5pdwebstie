@@ -34,11 +34,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
 // --- SESSION & PASSPORT SETUP ---
-app.use(session({ 
-    secret: 'va5pd-secret-key', 
-    resave: false, 
+app.use(session({
+    secret: 'some-random-secret',
+    resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 60000 * 60 * 24 } // 24 Hours
+    proxy: true, // Crucial for Vercel
+    cookie: {
+        secure: true, // Crucial for HTTPS
+        maxAge: 60000 * 60 * 24
+    }
 }));
 
 passport.serializeUser((user, done) => done(null, user));
