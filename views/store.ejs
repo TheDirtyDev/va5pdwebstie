@@ -119,19 +119,25 @@
                         </div>
                     <% } %>
 
-                    <div x-show="editing" class="p-8 bg-[#0b0f1a] h-full border-b border-white/5">
-                        <form action="/store/edit/<%= item.id %>" method="POST" class="grid grid-cols-2 gap-4">
-                            <input type="text" name="title" value="<%= item.title %>" class="bg-white/5 p-3 rounded-xl text-xs font-bold border border-white/10" placeholder="Title">
-                            <input type="text" name="category" value="<%= item.category %>" class="bg-white/5 p-3 rounded-xl text-xs font-bold border border-white/10" placeholder="Category">
-                            <input type="number" step="0.01" name="price" value="<%= item.price %>" class="bg-white/5 p-3 rounded-xl text-xs font-bold border border-white/10 text-blue-400" placeholder="Price">
-                            <input type="number" step="0.01" name="sale_price" value="<%= item.sale_price %>" placeholder="Sale Price" class="bg-white/5 p-3 rounded-xl text-xs font-bold border border-white/10 text-emerald-400">
-                            <input type="text" name="image" value="<%= item.image %>" class="bg-white/5 p-3 rounded-xl text-xs font-bold border border-white/10 col-span-2" placeholder="Image URL">
-                            
-                            <textarea name="description" class="bg-white/5 p-3 rounded-xl text-xs col-span-2 border border-white/10" rows="4"><%= item.description %></textarea>
-                            <button type="submit" class="bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">Update Archive</button>
-                            <button type="button" @click="editing = false" class="bg-white/10 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">Discard</button>
-                        </form>
-                    </div>
+<div class="relative" x-data="{ isLong: <%= item.description.length > 150 %> }">
+    <p class="text-gray-400 text-sm leading-relaxed transition-all duration-500 overflow-hidden" 
+       :class="expanded ? 'max-h-[1000px]' : 'max-h-[72px] line-clamp-3'">
+        <%= item.description %>
+    </p>
+    
+    <template x-if="isLong">
+        <button @click="expanded = !expanded" 
+                class="text-blue-500 text-[10px] font-black uppercase tracking-widest mt-3 hover:text-blue-400 transition-colors flex items-center gap-1 group/btn">
+            <span x-text="expanded ? 'Read Less' : 'Read More'"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                 class="h-3 w-3 transition-transform duration-300" 
+                 :class="expanded ? 'rotate-180' : ''" 
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+    </template>
+</div>
 
                     <div class="<%= item.is_announcement ? 'flex flex-col md:flex-row h-full' : '' %>" x-show="!editing">
                         <div class="<%= item.is_announcement ? 'md:w-3/5' : 'h-64' %> overflow-hidden relative">
