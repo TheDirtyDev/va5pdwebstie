@@ -58,7 +58,7 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 passport.use(new DiscordStrategy({
-    clientID: '1362240193150845059',
+    clientID: '1405718321747197972',
     clientSecret: 'O_RV1t7mc0nlY_YNSfM1hXO0f4aLjSRJ',
     // Ensure this matches your Discord Developer Portal exactly
     callbackURL: process.env.NODE_ENV === 'production'
