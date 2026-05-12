@@ -44,46 +44,45 @@ app.use(session({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// --- UPDATED DISCORD STRATEGY WITH LOGGING ---
+// --- FAIL-SAFE DISCORD STRATEGY ---
 passport.use(new DiscordStrategy({
     clientID: '1447464281540005888', 
     clientSecret: process.env.DISCORD_CLIENT_SECRET, 
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
     scope: ['identify', 'guilds'] 
 }, async (accessToken, refreshToken, profile, done) => {
-    try {
-        const response = await axios.get(
-            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${profile.id}`,
-            { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } }
-        );
-        
-        profile.roles = response.data.roles || [];
-        console.log(`User ${profile.username} logged in. Roles found:`, profile.roles);
-        
-    } catch (err) {
-        console.error("Critical: Could not fetch roles from Discord. Check if Bot is in server and Token is valid.");
-        profile.roles = []; 
+    profile.roles = []; // Initialize empty roles
+
+    // Only attempt fetch if Bot Token exists to prevent 500 errors
+    if (process.env.DISCORD_BOT_TOKEN) {
+        try {
+            const response = await axios.get(
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${profile.id}`,
+                { 
+                    headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+                    timeout: 4000 
+                }
+            );
+            profile.roles = response.data.roles || [];
+            console.log(`User ${profile.username} roles fetched successfully.`);
+        } catch (err) {
+            console.error("Role Fetch Failed (Check Bot/Intents):", err.message);
+        }
     }
     return done(null, profile);
 }));
 
-// --- UPDATED SECURITY HELPER ---
+app.use(passport.initialize());
+app.use(passport.session());
+
+// --- SECURITY HELPER ---
 const checkAdmin = (req) => {
-    if (!req.user) return false;
-    
-    // Check for the role
-    const hasRole = req.user.roles && req.user.roles.includes(OWNER_ROLE_ID);
-    
-    // Check for your ID (Owner)
+    if (!req || !req.user) return false;
+    const hasRole = Array.isArray(req.user.roles) && req.user.roles.includes(OWNER_ROLE_ID);
     const isOwner = req.user.id === OWNER_ID;
-
-    // Log the result for debugging in Vercel
-    if (req.user) {
-        console.log(`Permission Check for ${req.user.username}: RoleMatch=${hasRole}, IDMatch=${isOwner}`);
-    }
-
     return hasRole || isOwner;
 };
+
 // --- AUTH ROUTES ---
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedirect: '/' }), (req, res) => res.redirect('/'));
@@ -151,7 +150,7 @@ app.get('/admin', async (req, res) => {
     } catch (err) { res.status(500).send(err.message); }
 });
 
-// --- POSTING & TOOLS ---
+// --- ADMIN POSTING LOGIC ---
 
 app.post('/updates/post', async (req, res) => {
     if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
@@ -185,7 +184,7 @@ app.get('/store/delete/:id', async (req, res) => {
 });
 
 app.post('/tools/email-receipt', async (req, res) => {
-    const { email, handler, card, taxRate, signature, items, grandTotal } = req.body;
+    const { email, handler, items, grandTotal } = req.body;
     if (!email || !items) return res.status(400).send("Missing data.");
     
     let transporter = nodemailer.createTransport({ 
