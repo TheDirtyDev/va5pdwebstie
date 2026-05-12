@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personnel Review | VA5PD Internal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            background: #020617;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #security-modal {
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(10px);
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* PDF Styles - Clean Document Look */
+        .pdf-page {
+            padding: 60px;
+            background: white;
+            color: black;
+            min-height: 1050px;
+            position: relative;
+            font-family: Arial, sans-serif;
+        }
+
+        .data-label {
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
+        .data-value {
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .signature-font {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            color: #b91c1c;
+            font-size: 24px;
+        }
+
+        .policy-body {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+
+        .policy-header {
+            font-size: 15px;
+            font-weight: 900;
+            border-bottom: 2px solid #b91c1c;
+            padding-bottom: 5px;
+            margin: 25px 0 10px 0;
+            text-transform: uppercase;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen py-12 px-4">
+
+    <div id="security-modal" class="no-print">
+        <div class="max-w-md w-full bg-slate-900 border-2 border-red-900 p-8 rounded-xl shadow-2xl text-center">
+            <h2 class="text-xl font-black text-white uppercase mb-4 tracking-tighter">Record Purge Sequence</h2>
+            <p class="text-sm text-gray-400 mb-6">
+                This record will be automatically deleted in <span id="timer"
+                    class="text-red-500 font-bold bg-black px-2 py-1 rounded">10:00</span>.
+                Please share with other owners within VA5PD.
+            </p>
+            <div class="space-y-3">
+                <button id="request-time"
+                    class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded font-bold uppercase text-xs text-white">Request
+                    Time (+15 Mins)</button>
+                <button id="delete-now"
+                    class="w-full bg-red-600 hover:bg-red-700 py-3 rounded font-bold uppercase text-xs text-white">Delete
+                    Now</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pdf-template" style="display: none;">
+        <div class="pdf-page">
+            <div style="border-left: 8px solid #b91c1c; padding-left: 20px; margin-bottom: 40px;">
+                <h1 style="font-size: 32px; font-weight: 900; text-transform: uppercase; margin: 0;">Personnel <span
+                        style="color:#b91c1c">Dossier</span></h1>
+                <p style="font-size: 11px; color: #b91c1c; font-weight: bold; letter-spacing: 1px;">VA5PD INTERNAL USE
+                    ONLY - CONFIDENTIAL</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <div class="data-label">First Name</div>
+                    <div class="data-value">
+                        <%= recruit.first_name %>
+                    </div>
+                    <div class="data-label">Last Name</div>
+                    <div class="data-value">
+                        <%= recruit.last_name %>
+                    </div>
+                    <div class="data-label">Discord UID</div>
+                    <div class="data-value" style="font-family: monospace;">
+                        <%= recruit.discord_id %>
+                    </div>
+                </div>
+                <div>
+                    <div class="data-label">Age</div>
+                    <div class="data-value">
+                        <%= recruit.age %>
+                    </div>
+                    <div class="data-label">Assigned Status</div>
+                    <div class="data-value">TRIAL DEVELOPER</div>
+                    <div class="data-label">Tech Stack</div>
+                    <div class="data-value text-red-700">
+                        <%= recruit.stack %>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 60px; background: #f8fafc; padding: 30px; border-radius: 10px;">
+                <h3
+                    style="font-size: 12px; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 20px;">
+                    Execution & Approval</h3>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div style="width: 45%;">
+                        <div class="signature-font" style="border-bottom: 1px solid #94a3b8; min-height: 45px;">
+                            <%= recruit.signature %>
+                        </div>
+                        <p style="font-size: 9px; color: #64748b; text-transform: uppercase; margin-top: 5px;">Recruit
+                            Digital Signature</p>
+                    </div>
+                    <div style="width: 45%;">
+                        <div id="ld-sig-target" style="border-bottom: 1px solid #94a3b8; min-height: 45px;"></div>
+                        <p style="font-size: 9px; color: #64748b; text-transform: uppercase; margin-top: 5px;">Lead
+                            Developer Signature</p>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="position: absolute; bottom: 50px; left: 60px; right: 60px; font-size: 9px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; display: flex; justify-content: space-between;">
+                <span>Ref: #<%= recruit.id %>-TRIAL</span>
+                <span id="pdf-timestamp"></span>
+            </div>
+        </div>
+
+        <div class="pdf-page page-break">
+            <h1
+                style="font-size: 20px; font-weight: 900; text-transform: uppercase; text-align: center; margin-bottom: 5px;">
+                Server Development Policy</h1>
+            <p style="text-align: center; font-size: 10px; color: #64748b; margin-bottom: 30px;">Virginia FivePD | King
+                Cox</p>
+
+            <div class="policy-body">
+                <div class="policy-header">The Beginning</div>
+                Once you have accepted your position offer, you will receive a development role and be placed on a trial
+                period. During this period, you will not have access to any files, servers, or core systems.
+                <br><br>
+                You will be provided with test scripts to tailor for VA5PD, allowing us to evaluate your development
+                standards. After submission, your work will be reviewed, and a decision will be made on whether your
+                trial period has been successfully completed.
+
+                <div class="policy-header">Trial End</div>
+                Once you have successfully completed your trial period, you will become an official developer for VA5PD!
+                While this still does not grant full access to our server files, you will be held to a higher standard
+                and assigned more advanced tasks than during your trial.
+                <br><br>
+                You may be asked to create scripts or work in your area of expertise, such as Cars, EUP, Scripts, UI,
+                etc. After a few weeks in this stage, we will evaluate your performance and determine whether to promote
+                you to a full-time developer. At that level, you will have limited file and core system access and take
+                on the responsibility of overseeing overall server development under the supervision of a manager, with
+                final review by King Cox or Michael.
+
+                <div class="policy-header">Waiver & Liability</div>
+                Under no circumstances do you have the right to leak, steal, or resell assets owned by the Virginia
+                FivePD Corporation. You will not remove, delete, or rename any files, folders, or scripts without
+                explicit authorization from the Development Lead.
+            </div>
+        </div>
+
+        <div class="pdf-page page-break">
+            <div class="policy-body" style="margin-top: 40px;">
+                All submitted code is carefully examined by our security team for unauthorized logins or backdoor
+                access. Any actions involving nuking, threats, or violations of FiveM or Discord Terms of Service will
+                be pursued through legal actions.
+                <br><br>
+                This is a signed waiver, making it a legally binding contract. By signing, you acknowledge and agree to
+                comply with all development policies and standards set by Virginia FivePD. You also agree that if you
+                are removed from the development team, you may not retain or reuse any files, assets, or contributions
+                provided to Virginia FivePD.
+                <br><br>
+                <strong>Privacy Statement:</strong> We do not share any of the information provided. First name, last
+                name, age, and signature remain private and are only accessible to our ownership team. The "LD SIGN"
+                denotes the signature of our Lead Developer, authorizing the recruitment approval.
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto" id="ui-view">
+        <div class="flex justify-between items-end mb-8 border-b-2 border-red-900 pb-4">
+            <h1 class="text-3xl font-black italic uppercase">Review <span class="text-red-600">Recruit</span></h1>
+            <% if (user.id=='895054825316839424' ) { %>
+                <button id="approve-btn"
+                    class="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded font-black uppercase text-xs shadow-xl transition-all">Confirm
+                    & Export PDF</button>
+                <% } %>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                    <label class="data-label text-gray-400">Target Applicant</label>
+                    <p class="text-2xl font-bold text-white mb-6">
+                        <%= recruit.first_name %>
+                            <%= recruit.last_name %>
+                    </p>
+                    <label class="data-label text-gray-400">Core Stack</label>
+                    <p class="text-lg font-mono text-blue-400">
+                        <%= recruit.stack %>
+                    </p>
+                </div>
+                <div>
+                    <label class="data-label text-red-500">Lead Dev Authorization Pad</label>
+                    <canvas id="sig-canvas" width="350" height="120"
+                        class="rounded border border-slate-700 bg-black mt-2 cursor-crosshair"></canvas>
+                    <div class="flex justify-between mt-2">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest italic">Lead
+                            Developer: King Cox (895054825316839424)</span>
+                        <button id="clear-btn"
+                            class="text-[10px] text-red-500 hover:underline uppercase font-bold">Clear Pad</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = parseInt(localStorage.getItem('va5pd_purge_timer')) || 600;
+        const modal = document.getElementById('security-modal');
+
+        // TIMER & DELETE LOGIC
+        function startPurgeTimer() {
+            modal.style.display = 'flex';
+            const interval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    localStorage.removeItem('va5pd_purge_timer');
+                    window.location.href = "/session-terminated";
+                    return;
+                }
+                timeLeft--;
+                localStorage.setItem('va5pd_purge_timer', timeLeft);
+                document.getElementById('timer').textContent = `${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Replace your existing delete-now listener with this
+        document.getElementById('delete-now').addEventListener('click', async () => {
+            if (confirm("DANGER: This will permanently delete the recruit from the database. Continue?")) {
+                try {
+                    const response = await fetch('/api/delete-recruit/<%= recruit.id %>', {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        // Clear the persistent timer so it doesn't loop
+                        localStorage.removeItem('va5pd_purge_timer');
+                        // Redirect to the success page we created above
+                        window.location.href = "/session-terminated";
+                    } else {
+                        alert("Server error during deletion.");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Connection failed.");
+                }
+            }
+        });
+
+        // Update the PDF Timestamp in the 'approve-btn' listener
+        document.getElementById('approve-btn').addEventListener('click', () => {
+            // Exact requested timestamp format
+            document.getElementById('pdf-timestamp').innerHTML = `Created: April 1, 2026`;
+
+            const sigImage = canvas.toDataURL("image/png");
+            document.getElementById('ld-sig-target').innerHTML = `<img src="${sigImage}" style="height:45px;">`;
+
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block';
+
+            const opt = {
+                margin: 0,
+                filename: 'VA5PD_Dossier_<%= recruit.last_name %>.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+                startPurgeTimer();
+            });
+        });
+
+        // SIGNATURE PAD
+        const canvas = document.getElementById('sig-canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return { x: (e.clientX || e.touches[0].clientX) - rect.left, y: (e.clientY || e.touches[0].clientY) - rect.top };
+        }
+        function draw(e) {
+            if (!drawing) return; e.preventDefault();
+            const pos = getPos(e);
+            ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#b91c1c';
+            ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+        }
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+        document.getElementById('clear-btn').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+
+        // PDF EXPORT
+        document.getElementById('approve-btn').addEventListener('click', () => {
+            // Set dynamic timestamp
+            const now = new Date();
+            document.getElementById('pdf-timestamp').textContent = "Generated: " + now.toLocaleString();
+
+            // Insert Signature
+            const sigImage = canvas.toDataURL("image/png");
+            document.getElementById('ld-sig-target').innerHTML = `<img src="${sigImage}" style="height:45px;">`;
+
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block';
+
+            const opt = {
+                margin: 0,
+                filename: `VA5PD_Dossier_${now.getTime()}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+                startPurgeTimer();
+            });
+        });
+
+        if (localStorage.getItem('va5pd_purge_timer')) startPurgeTimer();
+    </script>
+</body>
+
+</html>

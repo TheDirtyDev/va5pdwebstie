@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA5PD | Development Onboarding</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #060910;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .form-input {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #ef4444;
+            outline: none;
+        }
+
+        .policy-box {
+            background: #020617;
+            border: 1px solid #1e293b;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 25px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .policy-box h3 {
+            color: white;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .policy-box p {
+            margin-bottom: 15px;
+            color: #94a3b8;
+        }
+
+        .btn-submit {
+            background: linear-gradient(to right, #ef4444, #b91c1c);
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen py-10 px-4">
+
+    <div class="max-w-3xl mx-auto glass-card rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-8 border-b border-gray-800 bg-gray-900/40">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white uppercase">Development </h1>
+                    <p class="text-red-500 font-mono text-xs font-bold tracking-widest uppercase">Official Onboarding
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-500 text-xs uppercase">Token ID</p>
+                    <p class="text-blue-400 font-mono text-sm">
+                        <%= token %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <% if (!user) { %>
+                <div class="text-center py-10">
+                    <i class="fab fa-discord text-5xl text-indigo-500 mb-4"></i>
+                    <h2 class="text-xl font-bold mb-6">Account Authentication Required</h2>
+                    <a href="/auth/discord"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold">Login with
+                        Discord</a>
+                </div>
+                <% } else { %>
+
+                    <form action="/onboard/submit" method="POST" class="space-y-6" id="devForm">
+                        <input type="hidden" name="token" value="<%= token %>">
+                        <input type="hidden" name="discordId" value="<%= user.id %>">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-1">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">First Name</label>
+                                <input type="text" name="firstName" required class="form-input text-white">
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Last Name</label>
+                                <input type="text" name="lastName" required class="form-input text-white">
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Age</label>
+                                <input type="number" name="age" required class="form-input text-white" min="15">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Technical Stack (If applicable)</label>
+                                <input type="text" name="stack" required placeholder="e.g., LUA, JavaScript/React, HTML/CSS..."
+                                    class="form-input text-white">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-gray-500 uppercase mb-1">Specialization</label>
+                                <select name="specialization" class="form-input text-white">
+                                    = <option value="Scripts/UI">Scripts & UI</option>
+                                    = <option value="Discord/Network">Discord / Network</option>
+
+                                    <option value="Cars/EUP">Cars & EUP</option>
+                                    =
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-red-500 uppercase mb-1 font-mono tracking-widest">Legal
+                                Policy & Requirements</label>
+                            <div class="policy-box rounded-lg">
+                                <h3>Server Development Policy</h3>
+                                <p><strong>Virginia FivePD | King Cox</strong></p>
+                                <p>This document outlines development policies and standards. It details what is
+                                    included and what is not, helping to ensure clear understanding and expectations.
+                                </p>
+
+                                <h3>The Beginning</h3>
+                                <p>Once you have accepted your position offer, you will receive a development role and
+                                    be placed on a trial period. During this period, you will not have access to any
+                                    files, servers, or core systems.</p>
+                                <p>You will be provided with test scripts to tailor for VA5PD, allowing us to evaluate
+                                    your development standards. After submission, your work will be reviewed, and a
+                                    decision will be made on whether your trial period has been successfully completed.
+                                </p>
+
+                                <h3>Trial End</h3>
+                                <p>Once you have successfully completed your trial period, you will become an official
+                                    developer for VA5PD! While this still does not grant full access to our server
+                                    files, you will be held to a higher standard and assigned more advanced tasks than
+                                    during your trial.</p>
+                                <p>You may be asked to create scripts or work in your area of expertise, such as Cars,
+                                    EUP, Scripts, UI, etc. After a few weeks in this stage, we will evaluate your
+                                    performance and determine whether to promote you to a full-time developer. At that
+                                    level, you will have limited file and core system access and take on the
+                                    responsibility of overseeing overall server development under the supervision of a
+                                    manager, with final review by King Cox or Michael.</p>
+
+                                <h3>Waiver</h3>
+                                <p>Under no circumstances do you have the right to leak, steal, or resell any assets
+                                    owned by the Virginia FivePD Community. All assets remain the sole property of the
+                                    Community. You are prohibited from sharing any files, code, or internal
+                                    information with third parties.</p>
+                                <p>You acknowledge and agree to comply with all development policies and standards set
+                                    by Virginia FivePD. You will not remove, delete, or rename any files, folders, or
+                                    scripts without explicit authorization from the Development Lead. You also agree
+                                    that if you are removed from the development team, you may not retain or reuse any
+                                    files, assets, or contributions provided to Virginia FivePD.</p>
+                                <p>Finally, you acknowledge that all submitted code may be reviewed by our security team
+                                    for unauthorized access or backdoor logins. Violations may result in termination of access, removal from the team, DMCA takedown requests, and potential civil legal action where applicable.</p>
+
+                                <p class="text-white font-bold italic">This is a signed waiver & contract. Please carefully review all terms, policies, and documents to
+                                    ensure you fully understand their meaning before signing. Thank you. This agreement
+                                    was created on April 1, 2026.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-500/5 p-6 rounded-xl border border-red-500/20">
+                            <label class="block text-xs font-bold text-white uppercase mb-3">Electronic
+                                Signature</label>
+                            <input type="text" name="signature" id="signatureInput" required
+                                placeholder="Type your full legal name to sign" style="font-family: 'Georgia', serif;"
+                                class="form-input text-xl italic text-red-400 border-dashed">
+
+                            <div class="mt-4 flex items-start gap-3">
+                                <input type="checkbox" id="agreeCheck" required class="mt-1">
+                                <label for="agreeCheck" class="text-xs text-gray-400">
+                                    I acknowledge that I have read the policy above word-for-word. I understand that my
+                                    information (First/Last Name/Age) remains private and is only accessible to the
+                                    ownership team.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png"
+                                    class="w-10 h-10 rounded-full border border-gray-700">
+                                <span class="text-xs text-gray-500 font-mono">Authenticated: <%= user.username %></span>
+                            </div>
+                            <button type="submit" id="submitBtn"
+                                class="btn-submit px-8 py-3 rounded-lg text-white font-bold uppercase tracking-widest text-sm">
+                                Submit & Generate Review Link
+                            </button>
+                        </div>
+                    </form>
+                    <% } %>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('devForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', () => {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Logging Data...';
+        });
+    </script>
+</body>
+
+</html>
