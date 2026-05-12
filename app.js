@@ -10,8 +10,14 @@ const nodemailer = require('nodemailer');
 const app = express();
 
 // --- CONFIGURATION ---
-const OWNER_ROLE_ID = "1449514984290783433"; 
-const OWNER_ID = "895054825316839424"; 
+// Hard-coded list of users who have full access to the panel
+const ADMIN_IDS = [
+    "895054825316839424", // Cox 
+    "698645469907124346",  // Michael 
+    "1101613108524499117", // Mudding 
+    "1437923739227521044"  // ALT (COX)
+];
+
 const GUILD_ID = "1447360424487030816"; 
 
 // --- DATABASE CONNECTION ---
@@ -44,43 +50,25 @@ app.use(session({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// --- FAIL-SAFE DISCORD STRATEGY ---
+// --- CLEAN DISCORD STRATEGY ---
+// We only need the 'identify' scope now since we use Hard-Coded IDs
 passport.use(new DiscordStrategy({
     clientID: '1405718321747197972', 
     clientSecret: process.env.DISCORD_CLIENT_SECRET, 
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
-    scope: ['identify', 'guilds'] 
-}, async (accessToken, refreshToken, profile, done) => {
-    profile.roles = []; // Initialize empty roles
-
-    // Only attempt fetch if Bot Token exists to prevent 500 errors
-    if (process.env.DISCORD_BOT_TOKEN) {
-        try {
-            const response = await axios.get(
-                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${profile.id}`,
-                { 
-                    headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
-                    timeout: 4000 
-                }
-            );
-            profile.roles = response.data.roles || [];
-            console.log(`User ${profile.username} roles fetched successfully.`);
-        } catch (err) {
-            console.error("Role Fetch Failed (Check Bot/Intents):", err.message);
-        }
-    }
+    scope: ['identify'] 
+}, (accessToken, refreshToken, profile, done) => {
+    // No more Bot API calls to fetch roles - this prevents 500 errors
     return done(null, profile);
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --- SECURITY HELPER ---
+// --- UPDATED SECURITY HELPER ---
 const checkAdmin = (req) => {
-    if (!req || !req.user) return false;
-    const hasRole = Array.isArray(req.user.roles) && req.user.roles.includes(OWNER_ROLE_ID);
-    const isOwner = req.user.id === OWNER_ID;
-    return hasRole || isOwner;
+    // If user is logged in AND their ID is in our list, they are Admin
+    return req.user && ADMIN_IDS.includes(req.user.id);
 };
 
 // --- AUTH ROUTES ---
@@ -91,7 +79,7 @@ app.get('/logout', (req, res) => req.logout(() => res.redirect('/')));
 // --- PAGE ROUTES ---
 
 app.get('/', (req, res) => {
-    res.render('home', { user: req.user, isAdmin: checkAdmin(req), owner: OWNER_ID });
+    res.render('home', { user: req.user, isAdmin: checkAdmin(req) });
 });
 
 app.get('/status', async (req, res) => {
@@ -117,14 +105,14 @@ app.get('/status', async (req, res) => {
 app.get('/store', (req, res) => {
     db.query("SELECT * FROM store_items ORDER BY is_announcement DESC, createdAt DESC", (err, results) => {
         if (err) return res.status(500).send(err.message);
-        res.render('store', { user: req.user, items: results || [], isAdmin: checkAdmin(req), owner: OWNER_ID, ticketUrl: "https://discord.gg/5xpZrjBNDq" });
+        res.render('store', { user: req.user, items: results || [], isAdmin: checkAdmin(req), ticketUrl: "https://discord.gg/5xpZrjBNDq" });
     });
 });
 
 app.get('/updates', (req, res) => {
     db.query("SELECT * FROM updates ORDER BY createdAt DESC", (err, results) => {
         if (err) return res.status(500).send(err.message);
-        res.render('updates', { user: req.user, updates: results, isAdmin: checkAdmin(req), owner: OWNER_ID });
+        res.render('updates', { user: req.user, updates: results, isAdmin: checkAdmin(req) });
     });
 });
 
@@ -204,6 +192,7 @@ app.post('/tools/email-receipt', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// --- VERCEL EXPORT ---
 if (process.env.NODE_ENV !== 'production') {
     app.listen(4000, () => console.log('Running on http://localhost:4000'));
 }
