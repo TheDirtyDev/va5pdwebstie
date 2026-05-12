@@ -46,7 +46,7 @@ passport.deserializeUser((obj, done) => done(null, obj));
 
 // --- FAIL-SAFE DISCORD STRATEGY ---
 passport.use(new DiscordStrategy({
-    clientID: '1447464281540005888', 
+    clientID: '1405718321747197972', 
     clientSecret: process.env.DISCORD_CLIENT_SECRET, 
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
     scope: ['identify', 'guilds'] 
