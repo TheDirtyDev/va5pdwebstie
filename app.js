@@ -10,17 +10,17 @@ const nodemailer = require('nodemailer');
 const app = express();
 
 // --- VERCEL STABILITY SETTINGS ---
-app.set('trust proxy', 1); // Crucial for Discord redirects on Vercel
+app.set('trust proxy', 1); 
 
 // --- CONFIGURATION ---
 const ADMIN_IDS = [
-    "895054825316839424", // Cox 
-    "698645469907124346",  // Michael 
+    "895054825316839424", // Cox (Primary Owner)
+    "698645469907124346", // Michael 
     "1101613108524499117", // Mudding 
     "1437923739227521044"  // ALT (COX)
 ];
 
-// --- DATABASE CONNECTION (Serverless Optimized) ---
+// --- DATABASE CONNECTION ---
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -45,11 +45,11 @@ app.set('views', path.join(__dirname, 'views'));
 // --- SESSION MANAGEMENT ---
 app.use(session({
     secret: process.env.SESSION_SECRET || 'va5pd-secure-fallback-key-12345',
-    resave: true, // Set to true for better Vercel session persistence
+    resave: true, 
     saveUninitialized: false,
     proxy: true, 
     cookie: { 
-        secure: true, // Required for HTTPS
+        secure: true, 
         maxAge: 60000 * 60 * 24, 
         sameSite: 'lax' 
     }
@@ -65,7 +65,6 @@ passport.use(new DiscordStrategy({
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
     scope: ['identify'] 
 }, (accessToken, refreshToken, profile, done) => {
-    // Use nextTick to ensure the callback finishes cleanly in serverless
     process.nextTick(() => {
         return done(null, profile);
     });
@@ -91,10 +90,9 @@ app.get('/logout', (req, res) => {
     req.logout(() => res.redirect('/'));
 });
 
-// --- PAGE ROUTES ---
+// --- PAGE ROUTES (FIXED TO INCLUDE OWNER) ---
 
 app.get('/', (req, res) => {
-    // We send 'owner' as the first ID in your admin list so the EJS doesn't crash
     res.render('home', { 
         user: req.user, 
         isAdmin: checkAdmin(req), 
@@ -120,20 +118,36 @@ app.get('/status', async (req, res) => {
     } catch (error) { 
         console.error("FiveM API Error:", error.message); 
     }
-    res.render('status', { user: req.user, server: serverData, isAdmin: checkAdmin(req) });
+    res.render('status', { 
+        user: req.user, 
+        server: serverData, 
+        isAdmin: checkAdmin(req),
+        owner: ADMIN_IDS[0] 
+    });
 });
 
 app.get('/store', (req, res) => {
     db.query("SELECT * FROM store_items ORDER BY is_announcement DESC, createdAt DESC", (err, results) => {
         if (err) return res.status(500).send("DB Error: " + err.message);
-        res.render('store', { user: req.user, items: results || [], isAdmin: checkAdmin(req), ticketUrl: "https://discord.gg/5xpZrjBNDq" });
+        res.render('store', { 
+            user: req.user, 
+            items: results || [], 
+            isAdmin: checkAdmin(req), 
+            owner: ADMIN_IDS[0],
+            ticketUrl: "https://discord.gg/5xpZrjBNDq" 
+        });
     });
 });
 
 app.get('/updates', (req, res) => {
     db.query("SELECT * FROM updates ORDER BY createdAt DESC", (err, results) => {
         if (err) return res.status(500).send("DB Error: " + err.message);
-        res.render('updates', { user: req.user, updates: results, isAdmin: checkAdmin(req) });
+        res.render('updates', { 
+            user: req.user, 
+            updates: results, 
+            isAdmin: checkAdmin(req),
+            owner: ADMIN_IDS[0]
+        });
     });
 });
 
@@ -147,6 +161,7 @@ app.get('/admin', async (req, res) => {
         res.render('admin_panel', { 
             user: req.user, 
             isAdmin: true, 
+            owner: ADMIN_IDS[0],
             adminPanelData: { 
                 stats: { updates: updatesRes[0].count, items: itemsRes[0].count, activeUsers: 0 }, 
                 users: [] 
