@@ -81,7 +81,7 @@ app.get('/', (req, res) => {
 
 app.get('/status', async (req, res) => {
     const JOIN_CODE = "9pvveb";
-    let serverData = { online: false, players: [], maxPlayers: 64, name: "Virginia Roleplay | Active Staff/LEO | Apply now for a department", joinUrl: `https://cfx.re/join/${JOIN_CODE}` };
+    let serverData = { online: false, players: [], maxPlayers: 64, name: "Virginia FivePD | Active Staff/LEO! | ERS", joinUrl: `https://cfx.re/join/${JOIN_CODE}` };
     try {
         const response = await axios.get(`https://servers-frontend.fivem.net/api/servers/single/${JOIN_CODE}`, { timeout: 5000 });
         if (response.data?.Data) {
