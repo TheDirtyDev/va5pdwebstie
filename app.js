@@ -44,25 +44,23 @@ app.use(session({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// --- UPDATED DISCORD STRATEGY ---
+// --- UPDATED DISCORD STRATEGY (FETHER ROLES) ---
 passport.use(new DiscordStrategy({
     clientID: '1447464281540005888', 
     clientSecret: process.env.DISCORD_CLIENT_SECRET, 
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
-    scope: ['identify', 'guilds'] // Simplified scopes
+    scope: ['identify', 'guilds'] 
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        // Fetch the user's specific roles in your GUILD using your Bot Token
+        // Fetch the user's specific member data for your server
         const response = await axios.get(
             `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${profile.id}`,
             { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } }
         );
-
-        // Attach the roles directly to the profile object
         profile.roles = response.data.roles || [];
     } catch (err) {
         console.error("Discord Role Fetch Error:", err.message);
-        profile.roles = []; // Default to no roles if they aren't in the server
+        profile.roles = []; // Defaults to no roles if API call fails
     }
     return done(null, profile);
 }));
@@ -73,16 +71,17 @@ app.use(passport.session());
 // --- SECURITY HELPER ---
 const checkAdmin = (req) => {
     if (!req.user) return false;
+    // Primary check: Does the user have the Role ID?
     const hasRole = req.user.roles && req.user.roles.includes(OWNER_ROLE_ID);
+    // Secondary check: Is the user ID the owner ID?
     const isOwner = req.user.id === OWNER_ID;
     return hasRole || isOwner;
 };
+
 // --- AUTH ROUTES ---
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedirect: '/' }), (req, res) => res.redirect('/'));
-app.get('/logout', (req, res) => {
-    req.logout(() => res.redirect('/'));
-});
+app.get('/logout', (req, res) => req.logout(() => res.redirect('/')));
 
 // --- PAGE ROUTES ---
 
@@ -124,12 +123,10 @@ app.get('/updates', (req, res) => {
     });
 });
 
-// --- ADMIN PANEL ---
 app.get('/admin', async (req, res) => {
-    if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
+    if (!checkAdmin(req)) return res.status(403).send("Unauthorized Access");
     try {
         const promiseDb = db.promise();
-        // Fixed destructuring to correctly handle promise pool results
         const [updatesRes] = await promiseDb.query("SELECT COUNT(*) as count FROM updates");
         const [itemsRes] = await promiseDb.query("SELECT COUNT(*) as count FROM store_items");
         
@@ -145,9 +142,7 @@ app.get('/admin', async (req, res) => {
                 users: [] 
             } 
         });
-    } catch (err) { 
-        res.status(500).send(err.message); 
-    }
+    } catch (err) { res.status(500).send(err.message); }
 });
 
 // --- POSTING & TOOLS ---
@@ -163,10 +158,8 @@ app.post('/updates/post', async (req, res) => {
 
 app.get('/updates/delete/:id', async (req, res) => {
     if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
-    try {
-        await db.promise().query("DELETE FROM updates WHERE id = ?", [req.params.id]);
-        res.redirect('/updates');
-    } catch (err) { res.status(500).send(err.message); }
+    await db.promise().query("DELETE FROM updates WHERE id = ?", [req.params.id]);
+    res.redirect('/updates');
 });
 
 app.post('/store/add', async (req, res) => {
@@ -181,10 +174,8 @@ app.post('/store/add', async (req, res) => {
 
 app.get('/store/delete/:id', async (req, res) => {
     if (!checkAdmin(req)) return res.status(403).send("Unauthorized");
-    try {
-        await db.promise().query("DELETE FROM store_items WHERE id = ?", [req.params.id]);
-        res.redirect('/store');
-    } catch (err) { res.status(500).send(err.message); }
+    await db.promise().query("DELETE FROM store_items WHERE id = ?", [req.params.id]);
+    res.redirect('/store');
 });
 
 app.post('/tools/email-receipt', async (req, res) => {
@@ -192,9 +183,7 @@ app.post('/tools/email-receipt', async (req, res) => {
     if (!email || !items) return res.status(400).send("Missing data.");
     
     let transporter = nodemailer.createTransport({ 
-        host: 'smtp.gmail.com', 
-        port: 465, 
-        secure: true, 
+        host: 'smtp.gmail.com', port: 465, secure: true, 
         auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } 
     });
 
@@ -203,17 +192,13 @@ app.post('/tools/email-receipt', async (req, res) => {
     try {
         await transporter.sendMail({ 
             from: `"VA5PD Network" <${process.env.EMAIL_USER}>`, 
-            to: email, 
-            subject: 'Official VA5PD Receipt', 
+            to: email, subject: 'Official VA5PD Receipt', 
             html: `<h2>Receipt</h2><table>${itemRows}</table><p>Total: ${grandTotal}</p>` 
         });
         res.status(200).send('OK');
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- VERCEL EXPORT ---
 if (process.env.NODE_ENV !== 'production') {
     app.listen(4000, () => console.log('Running on http://localhost:4000'));
 }
