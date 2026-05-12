@@ -33,30 +33,37 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// --- SESSION SETUP ---
 app.use(session({
     secret: process.env.SESSION_SECRET || 'va5pd-secret-key',
     resave: false,
     saveUninitialized: false,
     proxy: true, 
-    cookie: {
-        secure: true, 
-        maxAge: 60000 * 60 * 24,
-        sameSite: 'lax'
-    }
+    cookie: { secure: true, maxAge: 60000 * 60 * 24, sameSite: 'lax' }
 }));
 
-// --- PASSPORT DISCORD SETUP ---
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
+// --- UPDATED DISCORD STRATEGY ---
 passport.use(new DiscordStrategy({
     clientID: '1447464281540005888', 
     clientSecret: process.env.DISCORD_CLIENT_SECRET, 
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
-    scope: ['identify', 'guilds', 'guilds.members.read']
-}, (accessToken, refreshToken, profile, done) => {
-    profile.accessToken = accessToken; 
+    scope: ['identify', 'guilds'] // Simplified scopes
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        // Fetch the user's specific roles in your GUILD using your Bot Token
+        const response = await axios.get(
+            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${profile.id}`,
+            { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } }
+        );
+
+        // Attach the roles directly to the profile object
+        profile.roles = response.data.roles || [];
+    } catch (err) {
+        console.error("Discord Role Fetch Error:", err.message);
+        profile.roles = []; // Default to no roles if they aren't in the server
+    }
     return done(null, profile);
 }));
 
@@ -66,12 +73,10 @@ app.use(passport.session());
 // --- SECURITY HELPER ---
 const checkAdmin = (req) => {
     if (!req.user) return false;
-    // Fix: Checks for the Role OR the specific User ID so you never get locked out
     const hasRole = req.user.roles && req.user.roles.includes(OWNER_ROLE_ID);
     const isOwner = req.user.id === OWNER_ID;
     return hasRole || isOwner;
 };
-
 // --- AUTH ROUTES ---
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedirect: '/' }), (req, res) => res.redirect('/'));
