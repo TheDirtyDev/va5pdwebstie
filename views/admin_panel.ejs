@@ -1,303 +1,404 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VA5PD | Management Terminal</title>
+    <title>VA5PD | Owner Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@400;700;900&display=swap"
+        rel="stylesheet">
 
     <style>
-        :root { --bg-dark: #0b0f1a; --card-bg: #161b2c; --accent-blue: #3b82f6; --accent-red: #ef4444; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: white; margin: 0; overflow-x: hidden; }
-        .signature-font { font-family: 'Dancing Script', cursive; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0b0f1a; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
 
-        .glass-panel { background: rgba(22, 27, 44, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .hero-gradient { background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent); }
-        
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide { animation: slideUp 0.5s ease forwards; }
+        .signature-font {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        #modalContent::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #modalContent::-webkit-scrollbar-track {
+            background: #161b2c;
+        }
+
+        #modalContent::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 10px;
+        }
+
+        .item-row {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
-<body class="hero-gradient min-h-screen">
 
-    <nav class="border-b border-gray-800 bg-[#0b0f1a]/80 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black italic shadow-lg shadow-blue-900/20">VA</div>
-                <span class="font-black uppercase tracking-tighter text-xl italic">FivePD <span class="text-blue-500 underline decoration-2 underline-offset-4">Network</span></span>
-            </div>
-            <div class="flex gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
-                <a href="#" class="hover:text-white transition">Dashboard</a>
-                <a href="#" class="hover:text-white transition">Server Logs</a>
-                <a href="#" class="text-blue-500">Management</a>
-            </div>
-        </div>
-    </nav>
+<body class="bg-[#0b0f1a] text-white font-sans">
+    <%- include('partials/nav') %>
 
-    <main class="max-w-7xl mx-auto py-12 px-6">
-        <div class="mb-12 animate-slide">
-            <h1 class="text-5xl font-black italic uppercase tracking-tighter mb-2">Command <span class="text-blue-500">Terminal</span></h1>
-            <p class="text-gray-500 font-medium">Authorized Personnel Only • Session Active: <%= new Date().toLocaleTimeString() %></p>
-        </div>
+        <div class="max-w-7xl mx-auto py-12 px-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 animate-slide" style="animation-delay: 0.1s;">
-            <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
-                <div class="text-[10px] uppercase font-black text-blue-500 mb-1">Total Transactions</div>
-                <div class="text-3xl font-black italic tabular-nums">1,284</div>
-                <div class="absolute -right-4 -bottom-4 opacity-5 text-blue-500"><svg width="80" height="80" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+            <div class="mb-10">
+                <h1 class="text-4xl font-black italic uppercase tracking-tighter">Owner <span
+                        class="text-blue-500">Command Center</span></h1>
+                <p class="text-gray-500">Welcome back, Captain. Here is your server overview.</p>
             </div>
-            <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
-                <div class="text-[10px] uppercase font-black text-emerald-500 mb-1">Active Developers</div>
-                <div class="text-3xl font-black italic tabular-nums">12</div>
-            </div>
-            <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
-                <div class="text-[10px] uppercase font-black text-amber-500 mb-1">Pending Onboarding</div>
-                <div class="text-3xl font-black italic tabular-nums">3</div>
-            </div>
-            <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
-                <div class="text-[10px] uppercase font-black text-red-500 mb-1">System Health</div>
-                <div class="text-3xl font-black italic tabular-nums uppercase">Stable</div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-slide" style="animation-delay: 0.2s;">
-            
-            <div class="space-y-6">
-                <div class="flex items-center gap-2 px-2">
-                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                    <h2 class="text-xs font-black uppercase tracking-[0.3em] text-gray-500">Financial Control</h2>
-                </div>
-                
-                <button onclick="toggleModal('receiptModal')" class="w-full text-left group glass-panel p-8 rounded-[2.5rem] hover:border-red-500/50 transition-all duration-500 shadow-2xl">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="bg-red-500/10 text-red-500 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </div>
-                        <div class="text-[10px] font-black bg-white/5 px-3 py-1 rounded-full uppercase tracking-tighter">v2.4 Stable</div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+
+                <div
+                    class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-cyan-500/50 transition-colors">
+                    <div class="absolute -right-4 -top-4 text-cyan-500/10 group-hover:text-cyan-500/20 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
                     </div>
-                    <h3 class="text-2xl font-black uppercase italic italic group-hover:text-red-400 transition-colors">Receipt Generator</h3>
-                    <p class="text-gray-500 text-sm mt-2 leading-relaxed">Create and export official digital transaction receipts. Supports multi-item billing and tax calculations.</p>
-                </button>
-            </div>
-
-            <div class="space-y-6">
-                <div class="flex items-center gap-2 px-2">
-                    <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                    <h2 class="text-xs font-black uppercase tracking-[0.3em] text-gray-500">Personnel & Legal</h2>
+                    <p class="text-cyan-500 uppercase text-[10px] font-black tracking-widest mb-1">Total Updates</p>
+                    <h3 class="text-5xl font-black tabular-nums">
+                        <%= adminPanelData.stats.updates %>
+                    </h3>
                 </div>
 
-                <button onclick="toggleModal('policyModal')" class="w-full text-left group glass-panel p-8 rounded-[2.5rem] hover:border-blue-500/50 transition-all duration-500 shadow-2xl">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="bg-blue-500/10 text-blue-500 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        </div>
-                        <div class="text-[10px] font-black bg-white/5 px-3 py-1 rounded-full uppercase tracking-tighter">Legal Compliant</div>
+                <div
+                    class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-amber-500/50 transition-colors">
+                    <div
+                        class="absolute -right-4 -top-4 text-amber-500/10 group-hover:text-amber-500/20 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
                     </div>
-                    <h3 class="text-2xl font-black uppercase italic italic group-hover:text-blue-400 transition-colors">Policy Recruitment</h3>
-                    <p class="text-gray-500 text-sm mt-2 leading-relaxed">Generate secure, one-time invitation links for trial developers to sign the Server Development Policy.</p>
-                </button>
-            </div>
-        </div>
-    </main>
-
-    <div id="receiptModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
-        <div class="bg-[#161b2c] border border-gray-800 w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-            <div class="p-8 border-b border-gray-800 flex justify-between items-center bg-[#1c2237]">
-                <div>
-                    <h3 class="text-2xl font-black italic uppercase italic">Receipt <span class="text-red-500">Creator</span></h3>
-                    <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Official Transaction Export</p>
-                </div>
-                <button onclick="toggleModal('receiptModal')" class="text-3xl text-gray-500 hover:text-white transition-colors">&times;</button>
-            </div>
-
-            <div class="p-8 overflow-y-auto space-y-6 flex-1 bg-[#0b0f1a]/30">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Authorized Handler</label>
-                        <input type="text" id="pdfHandler" value="Koldin" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-bold focus:border-red-500 outline-none transition-all">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Payment Method</label>
-                        <select id="pdfMethod" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-bold focus:border-red-500 outline-none transition-all appearance-none">
-                            <option>Cash App</option>
-                            <option>Venmo</option>
-                            <option>PayPal</option>
-                            <option>Store Credit</option>
-                            <option>Debit/Credit</option>
-                        </select>
-                    </div>
+                    <p class="text-amber-500 uppercase text-[10px] font-black tracking-widest mb-1">Active Users</p>
+                    <h3 class="text-5xl font-black tabular-nums">
+                        <%= adminPanelData.stats.activeUsers %>
+                    </h3>
                 </div>
 
+                <div
+                    class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
+                    <div
+                        class="absolute -right-4 -top-4 text-emerald-500/10 group-hover:text-emerald-500/20 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-emerald-500 uppercase text-[10px] font-black tracking-widest mb-1">Store Items</p>
+                    <h3 class="text-5xl font-black tabular-nums">
+                        <%= adminPanelData.stats.items %>
+                    </h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Items to Invoice</label>
-                        <button onclick="addItemRow()" class="text-[10px] bg-red-500/10 text-red-500 px-4 py-1.5 rounded-full font-black uppercase hover:bg-red-500 hover:text-white transition-all">+ Add Item</button>
+                    <h4 class="text-xs font-black uppercase tracking-widest text-gray-500 px-2">Quick Buttons</h4>
+                    <a href="/updates"
+                        class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg">
+                        <span class="font-bold uppercase italic group-hover:text-blue-400">Dev Log</span>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    <a href="/store"
+                        class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg">
+                        <span class="font-bold uppercase italic group-hover:text-blue-400">Store Management</span>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-gray-500 px-2 mb-4">Utility Toolbox
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button onclick="toggleReceiptModal()"
+                            class="text-left group relative bg-[#161b2c] border border-gray-800 rounded-3xl p-6 hover:border-red-500/50 transition-all duration-300 overflow-hidden shadow-2xl">
+                            <div
+                                class="absolute -right-2 -bottom-2 w-24 h-24 bg-red-600/10 blur-3xl group-hover:bg-red-600/20 transition-colors">
+                            </div>
+                            <div class="relative z-10 flex flex-col h-full justify-between">
+                                <div
+                                    class="bg-red-500/10 text-red-500 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5
+                                        class="text-lg font-black uppercase italic tracking-tight group-hover:text-red-400">
+                                        Receipt Gen</h5>
+                                    <p class="text-xs text-gray-500 font-medium">Multi-Item Professional Export</p>
+                                </div>
+                            </div>
+                        </button>
+                        <div
+                            class="border-2 border-dashed border-gray-800 rounded-3xl flex items-center justify-center p-6 opacity-30">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-600 italic">Slot
+                                Locked</span>
+                        </div>
                     </div>
-                    <div id="itemsContainer" class="space-y-3">
-                        <div class="item-row grid grid-cols-12 gap-3 bg-[#0b0f1a] p-4 rounded-2xl border border-gray-800 shadow-inner">
-                            <div class="col-span-8">
-                                <input type="text" placeholder="Item Name (e.g. Custom Plate)" class="item-desc w-full bg-transparent text-sm font-bold outline-none">
+                </div>
+            </div>
+        </div>
+
+        <div id="receiptModal"
+            class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+            <div
+                class="bg-[#161b2c] border border-gray-800 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                <div class="p-8 border-b border-gray-800 flex justify-between items-center bg-[#1c2237]">
+                    <div>
+                        <h3 class="text-2xl font-black italic uppercase tracking-tighter">Receipt <span
+                                class="text-red-500 font-black">Creator</span></h3>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-1 font-bold">Financial
+                            Reporting Module</p>
+                    </div>
+                    <button onclick="toggleReceiptModal()"
+                        class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:text-white hover:bg-red-500 transition-all text-2xl">&times;</button>
+                </div>
+
+                <div id="modalContent" class="p-8 overflow-y-auto space-y-8 flex-1">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Authorized
+                                Handler</label>
+                            <input type="text" id="pdfHandler" value="Captain"
+                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-red-500 transition-colors">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Payment Method</label>
+                            <select id="pdfCard"
+                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-red-500 transition-colors">
+                                <option>Visa</option>
+                                <option>Mastercard</option>
+                                <option>Cash App</option>
+                                <option>Other Banking</option>
+                                <option>Store Credit</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Recipient Email (Required for
+                            Send)</label>
+                        <input type="email" id="pdfEmail" placeholder="customer@example.com"
+                            class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-blue-500 transition-colors">
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Purchase Details</label>
+                            <button onclick="addItemRow()"
+                                class="text-[10px] bg-blue-600/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full font-black hover:bg-blue-600 hover:text-white transition-all uppercase tracking-tighter">+
+                                Add Item</button>
+                        </div>
+                        <div id="itemsContainer" class="space-y-3">
+                            <div
+                                class="item-row grid grid-cols-12 gap-4 items-center bg-[#0b0f1a]/50 p-4 rounded-2xl border border-gray-800/50">
+                                <div class="col-span-7">
+                                    <input type="text" placeholder="Item Name (e.g. VIP Pack)"
+                                        class="item-desc w-full bg-transparent text-sm font-bold outline-none border-b border-transparent focus:border-gray-700">
+                                </div>
+                                <div class="col-span-4 border-l border-gray-800 pl-4">
+                                    <span class="text-xs text-gray-600 mr-1">$</span>
+                                    <input type="number" placeholder="0.00"
+                                        class="item-price w-full bg-transparent text-sm font-mono outline-none">
+                                </div>
+                                <button onclick="this.parentElement.remove()"
+                                    class="col-span-1 text-gray-700 hover:text-red-500 transition-colors text-xl font-light">&times;</button>
                             </div>
-                            <div class="col-span-3 border-l border-gray-800 pl-3">
-                                <span class="text-xs text-gray-600 mr-1">$</span>
-                                <input type="number" placeholder="0.00" class="item-price w-full bg-transparent text-sm font-mono outline-none">
-                            </div>
-                            <button onclick="this.parentElement.remove()" class="col-span-1 text-red-500 hover:scale-125 transition-transform">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 pt-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Tax Rate (%)</label>
+                            <input type="number" id="pdfTax" value="7"
+                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-red-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">E-Signature</label>
+                            <input type="text" id="pdfSignature" placeholder="Print Name"
+                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-xl text-red-500 outline-none signature-font">
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-6 pt-6 border-t border-gray-800">
-                    <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Tax Rate (%)</label>
-                        <input type="number" id="pdfTax" value="7" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-mono focus:border-red-500 outline-none transition-all">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">E-Signature</label>
-                        <input type="text" id="pdfSignature" placeholder="Print Name" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-2xl text-red-500 outline-none signature-font transition-all placeholder:text-red-900/30">
-                    </div>
+                <div class="p-8 bg-[#1c2237] border-t border-gray-800 grid grid-cols-2 gap-4">
+                    <button onclick="handleReceiptAction('download')"
+                        class="w-full bg-gray-700 hover:bg-gray-600 text-white font-black uppercase tracking-[0.2em] py-5 rounded-2xl shadow-xl transition-all active:scale-[0.97] flex items-center justify-center gap-2">
+                        Download
+                    </button>
+                    <button id="emailBtn" onclick="handleReceiptAction('email')"
+                        class="w-full bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-[0.2em] py-5 rounded-2xl shadow-xl shadow-red-900/20 transition-all active:scale-[0.97] flex items-center justify-center gap-2">
+                        Send Email
+                    </button>
                 </div>
-            </div>
-
-            <div class="p-8 bg-[#1c2237] border-t border-gray-800">
-                <button onclick="handleReceiptAction('download')" class="w-full bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-[0.2em] py-6 rounded-2xl shadow-xl shadow-red-900/20 active:scale-[0.98] transition-all">Generate & Download PDF</button>
             </div>
         </div>
-    </div>
 
-    <div id="policyModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
-        <div class="bg-[#161b2c] border border-gray-800 w-full max-w-xl rounded-[3rem] shadow-2xl flex flex-col">
-            <div class="p-8 border-b border-gray-800 flex justify-between items-center bg-[#1c2237]">
-                <h3 class="text-2xl font-black italic uppercase italic">Policy <span class="text-blue-500 font-black">Gen</span></h3>
-                <button onclick="toggleModal('policyModal')" class="text-3xl text-gray-500 hover:text-white transition-colors">&times;</button>
-            </div>
-            <div class="p-10 space-y-6">
-                <div class="p-6 bg-blue-500/5 border border-blue-500/10 rounded-2xl">
-                    <p class="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-2 italic">Developer Onboarding</p>
-                    <p class="text-xs text-gray-400 leading-relaxed">Generates a unique link for the <b>Server Development Policy</b>. The recruit must provide their First/Last name, Age, and Signature to gain access.</p>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] uppercase font-black text-gray-500">Recruitment Link</label>
-                    <div class="relative group">
-                        <input type="text" id="policyInviteUrl" readonly placeholder="Waiting for generation..." class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-5 text-sm font-mono text-blue-400 outline-none">
-                        <button onclick="copyToClipboard()" class="absolute right-3 top-3 bottom-3 px-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-[10px] font-black uppercase transition-all">Copy</button>
-                    </div>
-                </div>
-                <button onclick="generatePolicyLink()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] py-6 rounded-2xl shadow-xl shadow-blue-900/20 active:scale-[0.98] transition-all">Generate Invite Token</button>
-            </div>
-        </div>
-    </div>
+        <script>
+            function toggleReceiptModal() {
+                const modal = document.getElementById('receiptModal');
+                modal.classList.toggle('hidden');
+            }
 
-    <script>
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+            function addItemRow() {
+                const container = document.getElementById('itemsContainer');
+                const row = document.createElement('div');
+                row.className = 'item-row grid grid-cols-12 gap-4 items-center bg-[#0b0f1a]/50 p-4 rounded-2xl border border-gray-800/50';
+                row.innerHTML = `
+                <div class="col-span-7"><input type="text" placeholder="Item Name" class="item-desc w-full bg-transparent text-sm font-bold outline-none border-b border-transparent focus:border-gray-700"></div>
+                <div class="col-span-4 border-l border-gray-800 pl-4"><span class="text-xs text-gray-600 mr-1">$</span><input type="number" placeholder="0.00" class="item-price w-full bg-transparent text-sm font-mono outline-none"></div>
+                <button onclick="this.parentElement.remove()" class="col-span-1 text-gray-700 hover:text-red-500 transition-colors text-xl font-light">&times;</button>
+            `;
+                container.appendChild(row);
+            }
 
-        function addItemRow() {
-            const container = document.getElementById('itemsContainer');
-            const row = document.createElement('div');
-            row.className = 'item-row grid grid-cols-12 gap-3 bg-[#0b0f1a] p-4 rounded-2xl border border-gray-800 shadow-inner animate-slide';
-            row.innerHTML = `
-                <div class="col-span-8"><input type="text" placeholder="Item Name" class="item-desc w-full bg-transparent text-sm font-bold outline-none"></div>
-                <div class="col-span-3 border-l border-gray-800 pl-3"><span class="text-xs text-gray-600 mr-1">$</span><input type="number" placeholder="0.00" class="item-price w-full bg-transparent text-sm font-mono outline-none"></div>
-                <button onclick="this.parentElement.remove()" class="col-span-1 text-red-500">&times;</button>`;
-            container.appendChild(row);
-        }
+            async function handleReceiptAction(type) {
+                const { jsPDF } = window.jspdf;
 
-        async function generatePolicyLink() {
-            const token = Math.random().toString(36).substring(2, 15);
-            const input = document.getElementById('policyInviteUrl');
-            input.value = `${window.location.origin}/onboard/${token}`;
-            alert("Invite generated. Link will remain active for 2 hours.");
-        }
+                // Gather Data
+                const handler = document.getElementById('pdfHandler').value || "System Admin";
+                const card = document.getElementById('pdfCard').value;
+                const taxRate = parseFloat(document.getElementById('pdfTax').value) || 0;
+                const signature = document.getElementById('pdfSignature').value || "Authorized Official";
+                const email = document.getElementById('pdfEmail').value;
 
-        function copyToClipboard() {
-            const input = document.getElementById('policyInviteUrl');
-            if(!input.value) return;
-            input.select();
-            document.execCommand('copy');
-            alert("Copied!");
-        }
+                const rows = document.querySelectorAll('.item-row');
+                let items = [];
+                let tableData = [];
+                let subtotal = 0;
 
-        async function handleReceiptAction(type) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const handler = document.getElementById('pdfHandler').value || "Koldin";
-            const method = document.getElementById('pdfMethod').value;
-            const signature = document.getElementById('pdfSignature').value || "AUTHORIZED SIGNATURE";
-            const taxRate = parseFloat(document.getElementById('pdfTax').value) || 7;
-            const timestamp = new Date().toLocaleString();
-            const invoiceID = `VA5PD-${Math.floor(100000 + Math.random() * 900000)}`;
+                rows.forEach(row => {
+                    const desc = row.querySelector('.item-desc').value || "Line Item";
+                    const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                    items.push({ desc, price: price.toFixed(2) });
+                    tableData.push([desc, `$${price.toFixed(2)}`]);
+                    subtotal += price;
+                });
 
-            let subtotal = 0;
-            const tableData = Array.from(document.querySelectorAll('.item-row')).map(row => {
-                const desc = row.querySelector('.item-desc').value || "Service";
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                subtotal += price;
-                return [desc, `$${price.toFixed(2)}`];
-            });
+                const taxAmount = subtotal * (taxRate / 100);
+                const grandTotal = subtotal + taxAmount;
 
-            const taxAmount = subtotal * (taxRate / 100);
-            const total = subtotal + taxAmount;
+                if (type === 'download') {
+                    const doc = new jsPDF();
+                    // PDF Layout
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(26);
+                    doc.text("VA5PD NETWORK", 105, 25, { align: 'center' });
+                    doc.setFontSize(10);
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(100);
+                    doc.text("Official Digital Transaction Receipt", 105, 32, { align: 'center' });
+                    doc.text(`Invoice ID: VA5PD-${Date.now().toString().slice(-6)}`, 105, 37, { align: 'center' });
+                    doc.setDrawColor(200);
+                    doc.line(20, 45, 190, 45);
 
-            // PDF CONSTRUCTION (Matches provided sample layout)
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(24);
-            doc.text("VA5PD NETWORK", 105, 35, { align: 'center' });
-            
-            doc.setFontSize(10);
-            doc.text("Official Digital Transaction Receipt", 105, 42, { align: 'center' });
-            doc.text(`Invoice ID: ${invoiceID}`, 105, 47, { align: 'center' });
+                    doc.setTextColor(0);
+                    doc.setFontSize(9);
+                    doc.setFont("helvetica", "bold");
+                    doc.text("BILLED BY:", 20, 55);
+                    doc.setFont("helvetica", "normal");
+                    doc.text("VA5PD Management Team", 20, 60);
+                    doc.text(`Handler: ${handler}`, 20, 65);
 
-            doc.setFontSize(9);
-            doc.setTextColor(100);
-            doc.text(`TIMESTAMP: ${timestamp}`, 20, 60);
-            doc.text(`Method: ${method}`, 150, 60);
+                    doc.setFont("helvetica", "bold");
+                    doc.text("TIMESTAMP:", 140, 55);
+                    doc.setFont("helvetica", "normal");
+                    doc.text(new Date().toLocaleString(), 140, 60);
+                    doc.text(`Method: ${card}`, 140, 65);
 
-            doc.setTextColor(0);
-            doc.setFontSize(10);
-            doc.text("BILLED BY:", 20, 75);
-            doc.setFont("helvetica", "bold");
-            doc.text("VA5PD Management Team", 20, 80);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Handler: ${handler}`, 20, 85);
+                    doc.autoTable({
+                        startY: 75,
+                        head: [['Name of Items', 'Price']],
+                        body: tableData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [11, 15, 26], textColor: [255, 255, 255], fontStyle: 'bold' },
+                        styles: { fontSize: 10, cellPadding: 6 },
+                        columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } }
+                    });
 
-            doc.autoTable({
-                startY: 95,
-                head: [['Name of Items', 'Price']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: { fillColor: [11, 15, 26], textColor: [255, 255, 255] },
-                styles: { fontSize: 10 }
-            });
+                    const finalY = doc.lastAutoTable.finalY + 15;
+                    doc.setFontSize(10);
+                    doc.text(`Subtotal:`, 130, finalY);
+                    doc.text(`$${subtotal.toFixed(2)}`, 190, finalY, { align: 'right' });
+                    doc.text(`Tax (${taxRate}%):`, 130, finalY + 7);
+                    doc.text(`$${taxAmount.toFixed(2)}`, 190, finalY + 7, { align: 'right' });
+                    doc.setFontSize(14);
+                    doc.setFont("helvetica", "bold");
+                    doc.text(`GRAND TOTAL:`, 130, finalY + 18);
+                    doc.text(`$${grandTotal.toFixed(2)}`, 190, finalY + 18, { align: 'right' });
 
-            const finalY = doc.lastAutoTable.finalY + 15;
-            doc.text(`Subtotal:`, 140, finalY);
-            doc.text(`$${subtotal.toFixed(2)}`, 180, finalY, { align: 'right' });
-            doc.text(`Tax (${taxRate}%):`, 140, finalY + 7);
-            doc.text(`$${taxAmount.toFixed(2)}`, 180, finalY + 7, { align: 'right' });
-            
-            doc.setFont("helvetica", "bold");
-            doc.text(`GRAND TOTAL:`, 140, finalY + 14);
-            doc.text(`$${total.toFixed(2)}`, 180, finalY + 14, { align: 'right' });
+                    doc.setDrawColor(0);
+                    doc.line(20, finalY + 40, 80, finalY + 40);
+                    doc.setFontSize(8);
+                    doc.setFont("helvetica", "normal");
+                    doc.text("AUTHORIZED SIGNATURE", 20, finalY + 45);
+                    doc.setFontSize(22);
+                    doc.text(signature, 20, finalY + 37);
 
-            // Signature Section
-            doc.setFont("helvetica", "bold");
-            doc.text(signature, 20, finalY + 14);
-            doc.line(20, finalY + 16, 80, finalY + 16);
-            doc.setFontSize(8);
-            doc.text("AUTHORIZED SIGNATURE", 20, finalY + 21);
+                    doc.save(`VA5PD_Receipt_${Date.now()}.pdf`);
 
-            doc.save(`VA5PD_Receipt_${Date.now()}.pdf`);
-        }
-    </script>
+                } else if (type === 'email') {
+                    if (!email) return alert("Enter recipient email first!");
+
+                    const btn = document.getElementById('emailBtn');
+                    btn.innerText = "SENDING...";
+                    btn.disabled = true;
+
+                    try {
+                        const response = await fetch('/tools/email-receipt', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email, handler, card, taxRate, signature, items,
+                                subtotal: subtotal.toFixed(2),
+                                taxAmount: taxAmount.toFixed(2),
+                                grandTotal: grandTotal.toFixed(2)
+                            })
+                        });
+
+                        if (response.ok) alert("HTML Receipt Sent!");
+                        else alert("Send Error: Check Server Console");
+                    } catch (err) {
+                        alert("Network Error");
+                    } finally {
+                        btn.innerText = "SEND EMAIL";
+                        btn.disabled = false;
+                    }
+                }
+            }
+        </script>
 </body>
+
 </html>
