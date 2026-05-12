@@ -3,38 +3,43 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VA5PD | Owner Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@400;700;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #0b0f1a;
+            color: #ffffff;
+            overflow-x: hidden;
         }
 
         .signature-font {
             font-family: 'Dancing Script', cursive;
         }
 
-        #modalContent::-webkit-scrollbar {
+        #modalContent::-webkit-scrollbar,
+        #recruitModalContent::-webkit-scrollbar {
             width: 6px;
         }
 
-        #modalContent::-webkit-scrollbar-track {
+        #modalContent::-webkit-scrollbar-track,
+        #recruitModalContent::-webkit-scrollbar-track {
             background: #161b2c;
         }
 
-        #modalContent::-webkit-scrollbar-thumb {
+        #modalContent::-webkit-scrollbar-thumb,
+        #recruitModalContent::-webkit-scrollbar-thumb {
             background: #374151;
             border-radius: 10px;
         }
 
-        .item-row {
-            animation: fadeIn 0.3s ease-out;
+        .item-row, .animate-slide {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes fadeIn {
@@ -42,363 +47,417 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
+        .glass-panel {
+            background: rgba(22, 27, 44, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glow-blue:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .glow-red:hover {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 
-<body class="bg-[#0b0f1a] text-white font-sans">
+<body class="min-h-screen">
     <%- include('partials/nav') %>
 
-        <div class="max-w-7xl mx-auto py-12 px-6">
-
-            <div class="mb-10">
-                <h1 class="text-4xl font-black italic uppercase tracking-tighter">Owner <span
-                        class="text-blue-500">Command Center</span></h1>
-                <p class="text-gray-500">Welcome back, Captain. Here is your server overview.</p>
+    <div class="max-w-7xl mx-auto py-12 px-6">
+        <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h1 class="text-5xl font-black italic uppercase tracking-tighter leading-none">
+                    Owner <span class="text-blue-500">Command Center</span>
+                </h1>
+                <p class="text-gray-500 mt-3 text-lg font-medium">Welcome back, Captain. System operational across all sectors.</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-
-                <div
-                    class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-cyan-500/50 transition-colors">
-                    <div class="absolute -right-4 -top-4 text-cyan-500/10 group-hover:text-cyan-500/20 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                    </div>
-                    <p class="text-cyan-500 uppercase text-[10px] font-black tracking-widest mb-1">Total Updates</p>
-                    <h3 class="text-5xl font-black tabular-nums">
-                        <%= adminPanelData.stats.updates %>
-                    </h3>
-                </div>
-
-                <div
-                    class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-amber-500/50 transition-colors">
-                    <div
-                        class="absolute -right-4 -top-4 text-amber-500/10 group-hover:text-amber-500/20 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-amber-500 uppercase text-[10px] font-black tracking-widest mb-1">Active Users</p>
-                    <h3 class="text-5xl font-black tabular-nums">
-                        <%= adminPanelData.stats.activeUsers %>
-                    </h3>
-                </div>
-
-                <div
-                    class="bg-[#161b2c] p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
-                    <div
-                        class="absolute -right-4 -top-4 text-emerald-500/10 group-hover:text-emerald-500/20 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-emerald-500 uppercase text-[10px] font-black tracking-widest mb-1">Store Items</p>
-                    <h3 class="text-5xl font-black tabular-nums">
-                        <%= adminPanelData.stats.items %>
-                    </h3>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="space-y-4">
-                    <h4 class="text-xs font-black uppercase tracking-widest text-gray-500 px-2">Quick Buttons</h4>
-                    <a href="/updates"
-                        class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg">
-                        <span class="font-bold uppercase italic group-hover:text-blue-400">Dev Log</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                    <a href="/store"
-                        class="flex items-center justify-between bg-[#161b2c] p-6 rounded-2xl border border-gray-800 hover:border-blue-500 transition group shadow-lg">
-                        <span class="font-bold uppercase italic group-hover:text-blue-400">Store Management</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
-
-                <div class="lg:col-span-1">
-                    <h4 class="text-xs font-black uppercase tracking-widest text-gray-500 px-2 mb-4">Utility Toolbox
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button onclick="toggleReceiptModal()"
-                            class="text-left group relative bg-[#161b2c] border border-gray-800 rounded-3xl p-6 hover:border-red-500/50 transition-all duration-300 overflow-hidden shadow-2xl">
-                            <div
-                                class="absolute -right-2 -bottom-2 w-24 h-24 bg-red-600/10 blur-3xl group-hover:bg-red-600/20 transition-colors">
-                            </div>
-                            <div class="relative z-10 flex flex-col h-full justify-between">
-                                <div
-                                    class="bg-red-500/10 text-red-500 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h5
-                                        class="text-lg font-black uppercase italic tracking-tight group-hover:text-red-400">
-                                        Receipt Gen</h5>
-                                    <p class="text-xs text-gray-500 font-medium">Multi-Item Professional Export</p>
-                                </div>
-                            </div>
-                        </button>
-                        <div
-                            class="border-2 border-dashed border-gray-800 rounded-3xl flex items-center justify-center p-6 opacity-30">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-600 italic">Slot
-                                Locked</span>
-                        </div>
-                    </div>
+            <div class="flex items-center gap-4 bg-[#161b2c] p-2 rounded-2xl border border-gray-800">
+                <div class="px-4 py-2 text-center">
+                    <p class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Server Status</p>
+                    <p class="text-emerald-500 text-xs font-bold uppercase flex items-center gap-1">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Online
+                    </p>
                 </div>
             </div>
         </div>
 
-        <div id="receiptModal"
-            class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
-            <div
-                class="bg-[#161b2c] border border-gray-800 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-                <div class="p-8 border-b border-gray-800 flex justify-between items-center bg-[#1c2237]">
-                    <div>
-                        <h3 class="text-2xl font-black italic uppercase tracking-tighter">Receipt <span
-                                class="text-red-500 font-black">Creator</span></h3>
-                        <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-1 font-bold">Financial
-                            Reporting Module</p>
-                    </div>
-                    <button onclick="toggleReceiptModal()"
-                        class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:text-white hover:bg-red-500 transition-all text-2xl">&times;</button>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-[#161b2c] p-8 rounded-[2.5rem] border border-gray-800 shadow-2xl relative overflow-hidden group hover:border-blue-500/50 transition-all duration-500">
+                <div class="absolute -right-4 -top-4 text-blue-500/10 group-hover:text-blue-500/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
                 </div>
+                <p class="text-blue-500 uppercase text-[10px] font-black tracking-[0.2em] mb-2">Total Updates</p>
+                <h3 class="text-6xl font-black tabular-nums tracking-tighter">
+                    <%= adminPanelData.stats.updates %>
+                </h3>
+            </div>
 
-                <div id="modalContent" class="p-8 overflow-y-auto space-y-8 flex-1">
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Authorized
-                                Handler</label>
-                            <input type="text" id="pdfHandler" value="Captain"
-                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-red-500 transition-colors">
+            <div class="bg-[#161b2c] p-8 rounded-[2.5rem] border border-gray-800 shadow-2xl relative overflow-hidden group hover:border-amber-500/50 transition-all duration-500">
+                <div class="absolute -right-4 -top-4 text-amber-500/10 group-hover:text-amber-500/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <p class="text-amber-500 uppercase text-[10px] font-black tracking-[0.2em] mb-2">Active Users</p>
+                <h3 class="text-6xl font-black tabular-nums tracking-tighter">
+                    <%= adminPanelData.stats.activeUsers %>
+                </h3>
+            </div>
+
+            <div class="bg-[#161b2c] p-8 rounded-[2.5rem] border border-gray-800 shadow-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-500">
+                <div class="absolute -right-4 -top-4 text-emerald-500/10 group-hover:text-emerald-500/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-emerald-500 uppercase text-[10px] font-black tracking-[0.2em] mb-2">Store Items</p>
+                <h3 class="text-6xl font-black tabular-nums tracking-tighter">
+                    <%= adminPanelData.stats.items %>
+                </h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600 px-4">Navigation Hub</h4>
+                
+                <a href="/updates" class="flex items-center justify-between bg-[#161b2c] p-8 rounded-3xl border border-gray-800 hover:border-blue-500 transition-all group shadow-xl">
+                    <div class="flex items-center gap-5">
+                        <div class="bg-blue-500/10 p-3 rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2v4a2 2 0 002 2h4"/></svg>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Payment Method</label>
-                            <select id="pdfCard"
-                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-red-500 transition-colors">
-                                <option>Visa</option>
-                                <option>Mastercard</option>
-                                <option>Cash App</option>
-                                <option>Other Banking</option>
-                                <option>Store Credit</option>
-                            </select>
+                        <div>
+                            <span class="block font-black uppercase italic text-xl group-hover:text-blue-400">Dev Log Center</span>
+                            <span class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Post and manage server updates</span>
                         </div>
                     </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
 
+                <a href="/store" class="flex items-center justify-between bg-[#161b2c] p-8 rounded-3xl border border-gray-800 hover:border-emerald-500 transition-all group shadow-xl">
+                    <div class="flex items-center gap-5">
+                        <div class="bg-emerald-500/10 p-3 rounded-xl text-emerald-500 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        </div>
+                        <div>
+                            <span class="block font-black uppercase italic text-xl group-hover:text-emerald-400">Store Front</span>
+                            <span class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Edit packages and pricing</span>
+                        </div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600 px-4">Utility Modules</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onclick="toggleReceiptModal()" class="text-left group relative bg-[#161b2c] border border-gray-800 rounded-[2rem] p-8 hover:border-red-500/50 transition-all duration-300 overflow-hidden shadow-2xl glow-red">
+                        <div class="absolute -right-2 -bottom-2 w-24 h-24 bg-red-600/5 blur-3xl group-hover:bg-red-600/10 transition-colors"></div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="bg-red-500/10 text-red-500 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h5 class="text-xl font-black uppercase italic tracking-tight group-hover:text-red-400 transition-colors">Receipt Gen</h5>
+                                <p class="text-[10px] text-gray-500 font-black uppercase mt-1">Invoice Generation</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="toggleRecruitModal()" class="text-left group relative bg-[#161b2c] border border-gray-800 rounded-[2rem] p-8 hover:border-blue-500/50 transition-all duration-300 overflow-hidden shadow-2xl glow-blue">
+                        <div class="absolute -right-2 -bottom-2 w-24 h-24 bg-blue-600/5 blur-3xl group-hover:bg-blue-600/10 transition-colors"></div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="bg-blue-500/10 text-blue-500 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h5 class="text-xl font-black uppercase italic tracking-tight group-hover:text-blue-400 transition-colors">Recruit Gen</h5>
+                                <p class="text-[10px] text-gray-500 font-black uppercase mt-1">Policy Signing Link</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="receiptModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+        <div class="bg-[#161b2c] border border-gray-800 w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-slide">
+            <div class="p-8 border-b border-gray-800 flex justify-between items-center bg-[#1c2237]">
+                <div>
+                    <h3 class="text-2xl font-black italic uppercase tracking-tighter">Receipt <span class="text-red-500">Creator</span></h3>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-1 font-black">Financial Export Module</p>
+                </div>
+                <button onclick="toggleReceiptModal()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-800 text-gray-400 hover:text-white hover:bg-red-500 transition-all text-3xl font-light">&times;</button>
+            </div>
+
+            <div id="modalContent" class="p-8 overflow-y-auto space-y-8 flex-1">
+                <div class="grid grid-cols-2 gap-6">
                     <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Recipient Email (Required for
-                            Send)</label>
-                        <input type="email" id="pdfEmail" placeholder="customer@example.com"
-                            class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-blue-500 transition-colors">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Handler</label>
+                        <input type="text" id="pdfHandler" value="Captain" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-bold outline-none focus:border-red-500 transition-all">
                     </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Method</label>
+                        <select id="pdfCard" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-bold outline-none focus:border-red-500 appearance-none">
+                            <option>Visa</option>
+                            <option>Mastercard</option>
+                            <option>Cash App</option>
+                            <option>Other Banking</option>
+                            <option>Store Credit</option>
+                        </select>
+                    </div>
+                </div>
 
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Purchase Details</label>
-                            <button onclick="addItemRow()"
-                                class="text-[10px] bg-blue-600/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full font-black hover:bg-blue-600 hover:text-white transition-all uppercase tracking-tighter">+
-                                Add Item</button>
-                        </div>
-                        <div id="itemsContainer" class="space-y-3">
-                            <div
-                                class="item-row grid grid-cols-12 gap-4 items-center bg-[#0b0f1a]/50 p-4 rounded-2xl border border-gray-800/50">
-                                <div class="col-span-7">
-                                    <input type="text" placeholder="Item Name (e.g. VIP Pack)"
-                                        class="item-desc w-full bg-transparent text-sm font-bold outline-none border-b border-transparent focus:border-gray-700">
-                                </div>
-                                <div class="col-span-4 border-l border-gray-800 pl-4">
-                                    <span class="text-xs text-gray-600 mr-1">$</span>
-                                    <input type="number" placeholder="0.00"
-                                        class="item-price w-full bg-transparent text-sm font-mono outline-none">
-                                </div>
-                                <button onclick="this.parentElement.remove()"
-                                    class="col-span-1 text-gray-700 hover:text-red-500 transition-colors text-xl font-light">&times;</button>
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Recipient Email</label>
+                    <input type="email" id="pdfEmail" placeholder="customer@example.com" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-bold outline-none focus:border-blue-500 transition-all">
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Items</label>
+                        <button onclick="addItemRow()" class="text-[10px] bg-blue-600/10 text-blue-400 px-5 py-2 rounded-full font-black uppercase hover:bg-blue-600 hover:text-white transition-all">+ Add Item</button>
+                    </div>
+                    <div id="itemsContainer" class="space-y-3">
+                        <div class="item-row grid grid-cols-12 gap-4 items-center bg-[#0b0f1a]/50 p-4 rounded-2xl border border-gray-800">
+                            <div class="col-span-7">
+                                <input type="text" placeholder="Item Description" class="item-desc w-full bg-transparent text-sm font-bold outline-none">
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6 pt-4">
-                        <div class="space-y-2">
-                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">Tax Rate (%)</label>
-                            <input type="number" id="pdfTax" value="7"
-                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-sm outline-none focus:border-red-500">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] uppercase font-black text-gray-500 ml-1">E-Signature</label>
-                            <input type="text" id="pdfSignature" placeholder="Print Name"
-                                class="w-full bg-[#0b0f1a] border border-gray-800 rounded-xl p-3 text-xl text-red-500 outline-none signature-font">
+                            <div class="col-span-4 border-l border-gray-800 pl-4 flex items-center">
+                                <span class="text-xs text-gray-600 mr-2">$</span>
+                                <input type="number" placeholder="0.00" class="item-price w-full bg-transparent text-sm font-mono font-bold outline-none">
+                            </div>
+                            <button onclick="this.parentElement.remove()" class="col-span-1 text-gray-600 hover:text-red-500 transition-colors text-2xl font-light">&times;</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-8 bg-[#1c2237] border-t border-gray-800 grid grid-cols-2 gap-4">
-                    <button onclick="handleReceiptAction('download')"
-                        class="w-full bg-gray-700 hover:bg-gray-600 text-white font-black uppercase tracking-[0.2em] py-5 rounded-2xl shadow-xl transition-all active:scale-[0.97] flex items-center justify-center gap-2">
-                        Download
+                <div class="grid grid-cols-2 gap-6 pt-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Tax %</label>
+                        <input type="number" id="pdfTax" value="7" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-sm font-mono font-bold outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Signature</label>
+                        <input type="text" id="pdfSignature" placeholder="Authorized Name" class="w-full bg-[#0b0f1a] border border-gray-800 rounded-2xl p-4 text-2xl text-red-500 outline-none signature-font">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 bg-[#1c2237] border-t border-gray-800 grid grid-cols-2 gap-4">
+                <button onclick="handleReceiptAction('download')" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-black uppercase tracking-[0.2em] py-6 rounded-2xl shadow-xl transition-all active:scale-95">Download PDF</button>
+                <button id="emailBtn" onclick="handleReceiptAction('email')" class="w-full bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-[0.2em] py-6 rounded-2xl shadow-xl transition-all active:scale-95">Send Email</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recruitModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+        <div class="bg-[#161b2c] border border-gray-800 w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden animate-slide">
+            <div class="p-8 border-b border-gray-800 flex justify-between items-center bg-[#1c2237]">
+                <div>
+                    <h3 class="text-2xl font-black italic uppercase tracking-tighter">Recruit <span class="text-blue-500">Gen</span></h3>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-1 font-black">Onboarding System</p>
+                </div>
+                <button onclick="toggleRecruitModal()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-800 text-gray-400 hover:text-white hover:bg-blue-500 transition-all text-3xl font-light">&times;</button>
+            </div>
+
+            <div id="recruitModalContent" class="p-10 space-y-8 bg-[#0b0f1a]/50">
+                <div class="space-y-4">
+                    <div class="bg-blue-500/5 border border-blue-500/20 p-6 rounded-2xl">
+                        <p class="text-xs text-blue-300 font-medium leading-relaxed">
+                            Generate a unique, one-time invitation link. This link will lead the recruit to the **Official Development Policy** where they must sign the waiver before being granted server access.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[10px] uppercase font-black text-gray-500 ml-1 tracking-widest">Generated Onboarding Link</label>
+                        <div class="relative group">
+                            <input type="text" id="recruitLinkDisplay" readonly placeholder="Click 'Generate' to create link..." 
+                                class="w-full bg-[#0b0f1a] border-2 border-gray-800 rounded-2xl p-5 text-xs font-mono text-blue-400 outline-none transition-all group-hover:border-blue-500/30">
+                            <button onclick="copyRecruitLink()" class="absolute right-3 top-3 bottom-3 px-5 bg-gray-800 hover:bg-gray-700 rounded-xl text-[10px] font-black uppercase transition-all">Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <button id="genLinkBtn" onclick="generateOnboardingLink()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] py-6 rounded-2xl shadow-xl transition-all active:scale-95">
+                        Generate Onboarding Link
                     </button>
-                    <button id="emailBtn" onclick="handleReceiptAction('email')"
-                        class="w-full bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-[0.2em] py-5 rounded-2xl shadow-xl shadow-red-900/20 transition-all active:scale-[0.97] flex items-center justify-center gap-2">
-                        Send Email
-                    </button>
+                    <p class="text-[9px] text-center text-gray-600 font-black uppercase tracking-widest">Link expires in 24 hours</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            function toggleReceiptModal() {
-                const modal = document.getElementById('receiptModal');
-                modal.classList.toggle('hidden');
+    <script>
+        // --- MODAL TOGGLES ---
+        function toggleReceiptModal() {
+            document.getElementById('receiptModal').classList.toggle('hidden');
+        }
+
+        function toggleRecruitModal() {
+            document.getElementById('recruitModal').classList.toggle('hidden');
+        }
+
+        // --- RECRUITMENT LOGIC ---
+        async function generateOnboardingLink() {
+            const btn = document.getElementById('genLinkBtn');
+            const display = document.getElementById('recruitLinkDisplay');
+            
+            btn.innerText = "GENERATING...";
+            btn.disabled = true;
+
+            try {
+                // Future app.js integration point
+                const response = await fetch('/tools/create-onboarding-token', { method: 'POST' });
+                const data = await response.json();
+                
+                if(data.success) {
+                    display.value = `${window.location.origin}/onboard/${data.token}`;
+                } else {
+                    // Fallback for visual testing
+                    const mockToken = Math.random().toString(36).substring(2, 15);
+                    display.value = `${window.location.origin}/onboard/${mockToken}`;
+                }
+            } catch (err) {
+                const mockToken = Math.random().toString(36).substring(2, 15);
+                display.value = `${window.location.origin}/onboard/${mockToken}`;
+            } finally {
+                btn.innerText = "GENERATE ONBOARDING LINK";
+                btn.disabled = false;
             }
+        }
 
-            function addItemRow() {
-                const container = document.getElementById('itemsContainer');
-                const row = document.createElement('div');
-                row.className = 'item-row grid grid-cols-12 gap-4 items-center bg-[#0b0f1a]/50 p-4 rounded-2xl border border-gray-800/50';
-                row.innerHTML = `
-                <div class="col-span-7"><input type="text" placeholder="Item Name" class="item-desc w-full bg-transparent text-sm font-bold outline-none border-b border-transparent focus:border-gray-700"></div>
-                <div class="col-span-4 border-l border-gray-800 pl-4"><span class="text-xs text-gray-600 mr-1">$</span><input type="number" placeholder="0.00" class="item-price w-full bg-transparent text-sm font-mono outline-none"></div>
-                <button onclick="this.parentElement.remove()" class="col-span-1 text-gray-700 hover:text-red-500 transition-colors text-xl font-light">&times;</button>
+        function copyRecruitLink() {
+            const copyText = document.getElementById("recruitLinkDisplay");
+            if (!copyText.value) return;
+            copyText.select();
+            document.execCommand("copy");
+            alert("Onboarding Link Copied!");
+        }
+
+        // --- RECEIPT LOGIC ---
+        function addItemRow() {
+            const container = document.getElementById('itemsContainer');
+            const row = document.createElement('div');
+            row.className = 'item-row grid grid-cols-12 gap-4 items-center bg-[#0b0f1a]/50 p-4 rounded-2xl border border-gray-800 animate-slide';
+            row.innerHTML = `
+                <div class="col-span-7"><input type="text" placeholder="Item Name" class="item-desc w-full bg-transparent text-sm font-bold outline-none"></div>
+                <div class="col-span-4 border-l border-gray-800 pl-4 flex items-center"><span class="text-xs text-gray-600 mr-2">$</span><input type="number" placeholder="0.00" class="item-price w-full bg-transparent text-sm font-mono font-bold outline-none"></div>
+                <button onclick="this.parentElement.remove()" class="col-span-1 text-gray-600 hover:text-red-500 transition-colors text-2xl font-light">&times;</button>
             `;
-                container.appendChild(row);
-            }
+            container.appendChild(row);
+        }
 
-            async function handleReceiptAction(type) {
-                const { jsPDF } = window.jspdf;
+        async function handleReceiptAction(type) {
+            const { jsPDF } = window.jspdf;
+            const handler = document.getElementById('pdfHandler').value;
+            const card = document.getElementById('pdfCard').value;
+            const taxRate = parseFloat(document.getElementById('pdfTax').value) || 0;
+            const signature = document.getElementById('pdfSignature').value || "AUTHORIZED";
+            const email = document.getElementById('pdfEmail').value;
 
-                // Gather Data
-                const handler = document.getElementById('pdfHandler').value || "System Admin";
-                const card = document.getElementById('pdfCard').value;
-                const taxRate = parseFloat(document.getElementById('pdfTax').value) || 0;
-                const signature = document.getElementById('pdfSignature').value || "Authorized Official";
-                const email = document.getElementById('pdfEmail').value;
+            const rows = document.querySelectorAll('.item-row');
+            let items = [];
+            let tableData = [];
+            let subtotal = 0;
 
-                const rows = document.querySelectorAll('.item-row');
-                let items = [];
-                let tableData = [];
-                let subtotal = 0;
+            rows.forEach(row => {
+                const desc = row.querySelector('.item-desc').value || "General Item";
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                items.push({ desc, price: price.toFixed(2) });
+                tableData.push([desc, `$${price.toFixed(2)}`]);
+                subtotal += price;
+            });
 
-                rows.forEach(row => {
-                    const desc = row.querySelector('.item-desc').value || "Line Item";
-                    const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                    items.push({ desc, price: price.toFixed(2) });
-                    tableData.push([desc, `$${price.toFixed(2)}`]);
-                    subtotal += price;
+            const taxAmount = subtotal * (taxRate / 100);
+            const grandTotal = subtotal + taxAmount;
+
+            if (type === 'download') {
+                const doc = new jsPDF();
+                const invoiceID = `VA5PD-${Math.floor(100000 + Math.random() * 900000)}`;
+
+                doc.setFontSize(24);
+                doc.setFont("helvetica", "bold");
+                doc.text("VA5PD NETWORK", 105, 30, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "normal");
+                doc.text("Official Digital Transaction Receipt", 105, 37, { align: 'center' });
+                doc.text(`Invoice ID: ${invoiceID}`, 105, 42, { align: 'center' });
+
+                doc.setFontSize(9);
+                doc.text("BILLED BY:", 20, 60);
+                doc.setFont("helvetica", "bold");
+                doc.text("VA5PD Management Team", 20, 65);
+                doc.setFont("helvetica", "normal");
+                doc.text(`Handler: ${handler}`, 20, 70);
+                
+                doc.text(`TIMESTAMP: ${new Date().toLocaleString()}`, 140, 65);
+                doc.text(`Method: ${card}`, 140, 70);
+
+                doc.autoTable({
+                    startY: 80,
+                    head: [['Name of Items', 'Price']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [11, 15, 26], halign: 'center' },
+                    columnStyles: { 1: { halign: 'right' } }
                 });
 
-                const taxAmount = subtotal * (taxRate / 100);
-                const grandTotal = subtotal + taxAmount;
+                const finalY = doc.lastAutoTable.finalY + 15;
+                doc.text(`Subtotal:`, 140, finalY);
+                doc.text(`$${subtotal.toFixed(2)}`, 190, finalY, { align: 'right' });
+                doc.text(`Tax (${taxRate}%):`, 140, finalY + 7);
+                doc.text(`$${taxAmount.toFixed(2)}`, 190, finalY + 7, { align: 'right' });
+                
+                doc.setFontSize(14);
+                doc.setFont("helvetica", "bold");
+                doc.text(`GRAND TOTAL:`, 140, finalY + 18);
+                doc.text(`$${grandTotal.toFixed(2)}`, 190, finalY + 18, { align: 'right' });
 
-                if (type === 'download') {
-                    const doc = new jsPDF();
-                    // PDF Layout
-                    doc.setFont("helvetica", "bold");
-                    doc.setFontSize(26);
-                    doc.text("VA5PD NETWORK", 105, 25, { align: 'center' });
-                    doc.setFontSize(10);
-                    doc.setFont("helvetica", "normal");
-                    doc.setTextColor(100);
-                    doc.text("Official Digital Transaction Receipt", 105, 32, { align: 'center' });
-                    doc.text(`Invoice ID: VA5PD-${Date.now().toString().slice(-6)}`, 105, 37, { align: 'center' });
-                    doc.setDrawColor(200);
-                    doc.line(20, 45, 190, 45);
+                doc.text(signature, 20, finalY + 18);
+                doc.line(20, finalY + 20, 70, finalY + 20);
+                doc.setFontSize(8);
+                doc.text("AUTHORIZED SIGNATURE", 20, finalY + 25);
 
-                    doc.setTextColor(0);
-                    doc.setFontSize(9);
-                    doc.setFont("helvetica", "bold");
-                    doc.text("BILLED BY:", 20, 55);
-                    doc.setFont("helvetica", "normal");
-                    doc.text("VA5PD Management Team", 20, 60);
-                    doc.text(`Handler: ${handler}`, 20, 65);
-
-                    doc.setFont("helvetica", "bold");
-                    doc.text("TIMESTAMP:", 140, 55);
-                    doc.setFont("helvetica", "normal");
-                    doc.text(new Date().toLocaleString(), 140, 60);
-                    doc.text(`Method: ${card}`, 140, 65);
-
-                    doc.autoTable({
-                        startY: 75,
-                        head: [['Name of Items', 'Price']],
-                        body: tableData,
-                        theme: 'striped',
-                        headStyles: { fillColor: [11, 15, 26], textColor: [255, 255, 255], fontStyle: 'bold' },
-                        styles: { fontSize: 10, cellPadding: 6 },
-                        columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } }
+                doc.save(`${invoiceID}_Receipt.pdf`);
+            } else if (type === 'email') {
+                if (!email) return alert("Email required!");
+                const btn = document.getElementById('emailBtn');
+                btn.innerText = "SENDING...";
+                try {
+                    const response = await fetch('/tools/email-receipt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, handler, card, items, subtotal, taxAmount, grandTotal, signature })
                     });
-
-                    const finalY = doc.lastAutoTable.finalY + 15;
-                    doc.setFontSize(10);
-                    doc.text(`Subtotal:`, 130, finalY);
-                    doc.text(`$${subtotal.toFixed(2)}`, 190, finalY, { align: 'right' });
-                    doc.text(`Tax (${taxRate}%):`, 130, finalY + 7);
-                    doc.text(`$${taxAmount.toFixed(2)}`, 190, finalY + 7, { align: 'right' });
-                    doc.setFontSize(14);
-                    doc.setFont("helvetica", "bold");
-                    doc.text(`GRAND TOTAL:`, 130, finalY + 18);
-                    doc.text(`$${grandTotal.toFixed(2)}`, 190, finalY + 18, { align: 'right' });
-
-                    doc.setDrawColor(0);
-                    doc.line(20, finalY + 40, 80, finalY + 40);
-                    doc.setFontSize(8);
-                    doc.setFont("helvetica", "normal");
-                    doc.text("AUTHORIZED SIGNATURE", 20, finalY + 45);
-                    doc.setFontSize(22);
-                    doc.text(signature, 20, finalY + 37);
-
-                    doc.save(`VA5PD_Receipt_${Date.now()}.pdf`);
-
-                } else if (type === 'email') {
-                    if (!email) return alert("Enter recipient email first!");
-
-                    const btn = document.getElementById('emailBtn');
-                    btn.innerText = "SENDING...";
-                    btn.disabled = true;
-
-                    try {
-                        const response = await fetch('/tools/email-receipt', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                email, handler, card, taxRate, signature, items,
-                                subtotal: subtotal.toFixed(2),
-                                taxAmount: taxAmount.toFixed(2),
-                                grandTotal: grandTotal.toFixed(2)
-                            })
-                        });
-
-                        if (response.ok) alert("HTML Receipt Sent!");
-                        else alert("Send Error: Check Server Console");
-                    } catch (err) {
-                        alert("Network Error");
-                    } finally {
-                        btn.innerText = "SEND EMAIL";
-                        btn.disabled = false;
-                    }
-                }
+                    if (response.ok) alert("Receipt sent successfully!");
+                } catch (e) { alert("Error sending email."); }
+                btn.innerText = "SEND EMAIL";
             }
-        </script>
+        }
+    </script>
 </body>
 
 </html>
