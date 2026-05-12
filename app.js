@@ -94,7 +94,12 @@ app.get('/logout', (req, res) => {
 // --- PAGE ROUTES ---
 
 app.get('/', (req, res) => {
-    res.render('home', { user: req.user, isAdmin: checkAdmin(req) });
+    // We send 'owner' as the first ID in your admin list so the EJS doesn't crash
+    res.render('home', { 
+        user: req.user, 
+        isAdmin: checkAdmin(req), 
+        owner: ADMIN_IDS[0] 
+    });
 });
 
 app.get('/status', async (req, res) => {
