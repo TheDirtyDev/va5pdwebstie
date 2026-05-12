@@ -9,6 +9,9 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
+// --- VERCEL STABILITY SETTINGS ---
+app.set('trust proxy', 1); // Crucial for Discord redirects on Vercel
+
 // --- CONFIGURATION ---
 const ADMIN_IDS = [
     "895054825316839424", // Cox 
@@ -17,9 +20,7 @@ const ADMIN_IDS = [
     "1437923739227521044"  // ALT (COX)
 ];
 
-const GUILD_ID = "1447360424487030816"; 
-
-// --- DATABASE CONNECTION (Optimized for Vercel) ---
+// --- DATABASE CONNECTION (Serverless Optimized) ---
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -27,7 +28,7 @@ const db = mysql.createPool({
     database: 'fivem', 
     port: process.env.DB_PORT || 4000,
     waitForConnections: true,
-    connectionLimit: 5, // Reduced for serverless stability
+    connectionLimit: 5,
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
@@ -41,26 +42,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// --- SESSION MANAGEMENT ---
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'va5pd-secret-key',
-    resave: false,
+    secret: process.env.SESSION_SECRET || 'va5pd-secure-fallback-key-12345',
+    resave: true, // Set to true for better Vercel session persistence
     saveUninitialized: false,
     proxy: true, 
     cookie: { 
-        secure: true, 
+        secure: true, // Required for HTTPS
         maxAge: 60000 * 60 * 24, 
         sameSite: 'lax' 
     }
 }));
 
-// --- PASSPORT SETUP ---
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((obj, done) => {
-    done(null, obj);
-});
+// --- PASSPORT AUTHENTICATION ---
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
 
 passport.use(new DiscordStrategy({
     clientID: '1405718321747197972', 
@@ -68,7 +65,7 @@ passport.use(new DiscordStrategy({
     callbackURL: 'https://va5pd2026.vercel.app/auth/discord/callback',
     scope: ['identify'] 
 }, (accessToken, refreshToken, profile, done) => {
-    // Explicitly pass null as error to prevent 500 crash
+    // Use nextTick to ensure the callback finishes cleanly in serverless
     process.nextTick(() => {
         return done(null, profile);
     });
@@ -87,15 +84,11 @@ app.get('/auth/discord', passport.authenticate('discord'));
 
 app.get('/auth/discord/callback', 
     passport.authenticate('discord', { failureRedirect: '/' }), 
-    (req, res) => {
-        res.redirect('/');
-    }
+    (req, res) => res.redirect('/')
 );
 
 app.get('/logout', (req, res) => {
-    req.logout((err) => {
-        res.redirect('/');
-    });
+    req.logout(() => res.redirect('/'));
 });
 
 // --- PAGE ROUTES ---
@@ -122,20 +115,19 @@ app.get('/status', async (req, res) => {
     } catch (error) { 
         console.error("FiveM API Error:", error.message); 
     }
-
     res.render('status', { user: req.user, server: serverData, isAdmin: checkAdmin(req) });
 });
 
 app.get('/store', (req, res) => {
     db.query("SELECT * FROM store_items ORDER BY is_announcement DESC, createdAt DESC", (err, results) => {
-        if (err) return res.status(500).send("Database error: " + err.message);
+        if (err) return res.status(500).send("DB Error: " + err.message);
         res.render('store', { user: req.user, items: results || [], isAdmin: checkAdmin(req), ticketUrl: "https://discord.gg/5xpZrjBNDq" });
     });
 });
 
 app.get('/updates', (req, res) => {
     db.query("SELECT * FROM updates ORDER BY createdAt DESC", (err, results) => {
-        if (err) return res.status(500).send("Database error: " + err.message);
+        if (err) return res.status(500).send("DB Error: " + err.message);
         res.render('updates', { user: req.user, updates: results, isAdmin: checkAdmin(req) });
     });
 });
@@ -151,16 +143,12 @@ app.get('/admin', async (req, res) => {
             user: req.user, 
             isAdmin: true, 
             adminPanelData: { 
-                stats: { 
-                    updates: updatesRes[0].count, 
-                    items: itemsRes[0].count, 
-                    activeUsers: 0 
-                }, 
+                stats: { updates: updatesRes[0].count, items: itemsRes[0].count, activeUsers: 0 }, 
                 users: [] 
             } 
         });
     } catch (err) { 
-        res.status(500).send("Admin Panel Data Error: " + err.message); 
+        res.status(500).send("Admin Data Error: " + err.message); 
     }
 });
 
@@ -199,6 +187,27 @@ app.get('/store/delete/:id', async (req, res) => {
         await db.promise().query("DELETE FROM store_items WHERE id = ?", [req.params.id]);
         res.redirect('/store');
     } catch (err) { res.status(500).send(err.message); }
+});
+
+app.post('/tools/email-receipt', async (req, res) => {
+    const { email, items, grandTotal } = req.body;
+    if (!email || !items) return res.status(400).send("Missing data.");
+    
+    let transporter = nodemailer.createTransport({ 
+        host: 'smtp.gmail.com', port: 465, secure: true, 
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } 
+    });
+
+    const itemRows = items.map(i => `<tr><td>${i.desc}</td><td>$${i.price}</td></tr>`).join('');
+    
+    try {
+        await transporter.sendMail({ 
+            from: `"VA5PD Network" <${process.env.EMAIL_USER}>`, 
+            to: email, subject: 'Official VA5PD Receipt', 
+            html: `<h2>Receipt</h2><table>${itemRows}</table><p>Total: ${grandTotal}</p>` 
+        });
+        res.status(200).send('OK');
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- VERCEL EXPORT ---
