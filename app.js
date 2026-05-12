@@ -1,4 +1,3 @@
-require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const session = require('express-session');
 const axios = require('axios');
