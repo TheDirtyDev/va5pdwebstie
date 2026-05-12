@@ -286,7 +286,9 @@ app.post('/onboard/submit', async (req, res) => {
 
         // 2. Generate the unique Review ID (using the database row ID)
         const reviewId = result.insertId;
-        const reviewLink = `http://localhost:3000/onboard/review/${reviewId}`;
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const host = req.get('host');
+        const reviewLink = `${protocol}://${host}/onboard/review/${reviewId}`;
 
         // 3. Send Success Response with the instructions
         res.send(`
