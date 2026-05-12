@@ -62,7 +62,7 @@ passport.use(new DiscordStrategy({
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
     // Ensure this matches your Discord Developer Portal exactly
     callbackURL: process.env.NODE_ENV === 'production'
-        ? 'https://va5pd.vercel.app/auth/discord/callback'
+        ? 'https://va5pd2026.vercel.app/auth/discord/callback'
         : 'http://localhost:3000/auth/discord/callback',
     scope: ['identify']
 }, (accessToken, refreshToken, profile, done) => {
